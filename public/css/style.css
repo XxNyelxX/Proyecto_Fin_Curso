@@ -1,0 +1,728 @@
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+
+
+/* ====== BODY ====== */
+
+
+/* ------ Base y Ajustes Globales ------ */
+
+
+/* -- Estilos base del body -- */
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #1a1c23;
+    font-family: 'VT323', monospace;
+    color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* - Modo estático (accesibilidad) - */
+body.modo-estatico * {
+    animation: none !important;
+    transition: none !important;
+    background-image: none !important; 
+}
+
+/* -- Estilos base de los links -- */
+
+a, a:visited, a:active {
+    color: inherit; 
+    text-decoration: none; /* Opcional: por si quieres quitar el subrayado también */
+}
+
+
+
+/* ====== CONTENEDORES ====== */
+
+
+/* ------ Estructura principal ------ */
+
+
+/* -- Contenedor central -- */
+.contenedor-central {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100%;
+    box-sizing: border-box;
+
+    position: relative;
+}
+
+/* -- Contenedor controles superior derecha -- */
+.top-right-controls {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    z-index: 100;
+}
+
+/* -- Contenedor botones menú -- */
+.botones-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    width: 350px;
+}
+
+/* ------ Vistas Específicas ------ */
+
+
+/* -- Contenedor Clasificación -- */
+.contenedor-clasificacion {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    width: 100%;
+    padding-top: 12vh;
+    box-sizing: border-box;
+}
+
+/* -- Caja de clasificacion -- */
+.lista-scroll-container {
+    width: 90%;
+    max-width: 1000px;
+    height: 60vh;
+    background-color: transparent; 
+    border: none;
+    box-shadow: none;
+    padding: 10px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* - Scrollbar minimalista semitransparente - */
+.lista-scroll-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+/* - Fondo del scroll (Track) - */
+.lista-scroll-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02); /* Prácticamente invisible */
+    border: none;
+}
+
+/* - Barra móvil del scroll (Thumb) - */
+.lista-scroll-container::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2); /* Gris blanquecino semitransparente */
+}
+
+/* - Barra móvil al pasar el ratón (Hover) - */
+.lista-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4); /* Se hace un poco más visible al usarla */
+}
+
+
+
+/* ====== TEXTOS Y ANIMACIONES ====== */
+
+
+/* ------ Títulos principales ------ */
+
+
+/* -- Título animado pixel -- */
+.titulo-animado-pixel {
+    display: inline-block;
+    background-image: linear-gradient(
+        to right,
+        #ff007f, #00e5ff, #7fff00, #ffeb3b, #9c27b0, #ff007f
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: none !important;
+    filter: drop-shadow(3px 3px 0px #696969);
+    animation: 
+        movimientoVertical 3s ease-in-out infinite,
+        flujoArcoiris 4s linear infinite;
+}
+
+/* - Título en modo estático - */
+body.modo-estatico .titulo-animado-pixel {
+    color: #ffffff !important; 
+    -webkit-background-clip: border-box !important;
+    background-clip: border-box !important;
+}
+
+/* - Animación movimiento vertical - */
+@keyframes movimientoVertical {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-10px); }
+}
+
+/* - Animación flujo arcoíris - */
+@keyframes flujoArcoiris {
+    to { background-position: 200% center; }
+}
+
+
+/* ------ Textos de estado ------ */
+
+
+/* -- Mensaje Sin Datos -- */
+.sin-datos {
+    font-size: 3rem;
+    color: #8892b0;
+    margin: auto;
+    text-shadow: 2px 2px #000;
+    letter-spacing: 3px;
+}
+
+
+/* ====== FORMULARIOS ====== */
+
+
+/* ------ Login y Registro ------ */
+
+
+/* -- Contenedor del login -- */
+.pixel-login-container {
+    position: relative;
+    background-color: #1a1e29;
+    padding: 40px;
+    width: 300px;
+    text-align: center;
+    border: 4px solid #fff;
+    box-shadow: 
+        -8px -8px 0 0 #ff007f,
+        8px -4px 0 0 #00e5ff,
+        12px 12px 0 0 #7fff00,
+        -4px 8px 0 0 #ffeb3b,
+        0px 0px 0 8px #0b0d12;
+}
+
+/* - Título H2 del formulario - */
+.pixel-login-container h2 {
+    font-size: 2.5rem;
+    margin-top: 0;
+    text-shadow: 2px 2px #000;
+}
+
+/* - Inputs de texto - */
+.pixel-login-container input[type="text"],
+.pixel-login-container input[type="password"],
+.pixel-login-container input[type="email"] {
+    width: 90%;
+    padding: 10px;
+    margin-bottom: 20px;
+    background-color: #1a1c23;
+    border: 2px solid #8892b0;
+    color: #fff;
+    font-family: 'VT323', monospace;
+    font-size: 1.2rem;
+    outline: none;
+}
+
+/* - Inputs focus - */
+.pixel-login-container input[type="text"]:focus,
+.pixel-login-container input[type="password"]:focus,
+.pixel-login-container input[type="email"]:focus {
+    border-color: #4caf50;
+}
+
+/* - Botón submit - */
+.pixel-login-container button {
+    background-color: #4caf50;
+    color: white;
+    border: 2px solid #fff;
+    padding: 10px 20px;
+    font-family: 'VT323', monospace;
+    font-size: 1.5rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    box-shadow: 4px 4px 0px #000;
+}
+
+/* - Botón submit hover - */
+.pixel-login-container button:hover {
+    background-color: #45a049;
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0px #0b130c;
+}
+
+/* -- Estados de Error en Inputs -- */
+.pixel-login-container input[type="text"].input-error,
+.pixel-login-container input[type="password"].input-error,
+.pixel-login-container input[type="email"].input-error {
+    border-color: #ff0000;
+}
+
+.pixel-login-container input[type="text"].input-error:focus,
+.pixel-login-container input[type="password"].input-error:focus,
+.pixel-login-container input[type="email"].input-error:focus {
+    border-color: #ff0000;
+    box-shadow: 0 0 8px rgba(255, 0, 0, 1); /* Un pequeño resplandor rojo extra */
+}
+
+/* -- Lista de mensajes de error -- */
+.mensaje-error {
+    position: absolute;
+    top:100%;
+    left: 50%;
+    transform: translateX(-50%); /* Lo centra perfectamente respecto a la caja */
+    align-items: center;
+    color: #ff0000;
+    font-size: 1.2rem;
+    text-align: left;
+    margin-top: 30px;
+    width: 100%;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    text-shadow: 1px 1px #000;
+    /* Aseguramos que el contenido no se salga en pantallas pequeñas */
+    box-sizing: border-box;
+}
+
+/* -- Lista de mensajes de éxito -- */
+.mensaje-exito {
+    position: absolute;
+    top:100%;
+    left: 50%;
+    transform: translateX(-50%); /* Lo centra perfectamente respecto a la caja */
+    align-items: center;
+    color: #00ffcc;
+    font-size: 1.2rem;
+    text-align: left;
+    margin-top: 30px;
+    width: 100%;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    text-shadow: 1px 1px #000;
+    /* Aseguramos que el contenido no se salga en pantallas pequeñas */
+    box-sizing: border-box;
+}
+
+
+
+/* ====== BOTONES ====== */
+
+
+/* ------ Controles de Navegación ------ */
+
+
+/* -- Botón volver -- */
+.btn-volver {
+    z-index: 999;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    color: #00e5ff;
+    text-decoration: none;
+    font-size: 1.5rem;
+    font-family: 'VT323', monospace;
+    border: 2px solid #00e5ff;
+    padding: 5px 15px;
+    background-color: #0b0d12;;
+    text-transform: uppercase;
+    box-shadow: 2px 2px 0px #000;
+    transition: all 0.2s ease;
+}
+
+/* - Botón volver hover - */
+.btn-volver:hover {
+    background-color: #00e5ff;
+    color: #0b0d12;
+    box-shadow: 2px 2px 0px #000, 0 0 15px rgba(0, 229, 255, 0.6);
+    transform: translate(-2px, -2px);
+}
+
+/* - Botón volver active - */
+.btn-volver:active {
+    transform: translate(2px, 2px);
+    box-shadow: 0px 0px 0px #000;
+}
+
+/* -- Botón animaciones -- */
+.btn-animaciones {
+    font-size: 1.2rem;
+    font-family: 'VT323', monospace;
+    padding: 7px 15px;
+    cursor: pointer;
+    text-transform: uppercase;
+    box-shadow: 2px 2px 0px #000;
+    transition: all 0.3s ease;
+    background-color: #0b0d12;
+    width: 203px;
+    white-space: nowrap;
+}
+
+/* - Botón animaciones ON - */
+.btn-animaciones.on {
+    color: #00ffcc;
+    border: 2px solid #00ffcc;
+}
+
+/* - Botón animaciones ON hover - */
+.btn-animaciones.on:hover {
+    background-color: #00ffcc;
+    color: #0b0d12;
+    box-shadow: 2px 2px 0px #000, 0 0 10px rgba(0, 255, 204, 0.6);
+}
+
+/* - Botón animaciones OFF - */
+body.modo-estatico .btn-animaciones {
+    color: #8892b0;
+    border: 2px solid #8892b0;
+}
+
+/* - Botón animaciones OFF hover - */
+body.modo-estatico .btn-animaciones:hover {
+    background-color: #8892b0;
+    color: #0b0d12;
+    box-shadow: 2px 2px 0px #000;
+}
+
+/* -- Botón de intercambio (Entrar <-> Rexistrarse) -- */
+.btn-intercambio {
+    z-index: 999;
+    position: absolute;
+    top: 20px;
+    right: 20px; /* Lo mandamos a la derecha */
+    text-decoration: none;
+    font-size: 1.5rem;
+    font-family: 'VT323', monospace;
+    padding: 5px 15px;
+    background-color: #0b0d12;
+    text-transform: uppercase;
+    box-shadow: 2px 2px 0px #000;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+/* Reutilizamos las animaciones de pulsación del de volver */
+.btn-intercambio:active {
+    transform: translate(2px, 2px);
+    box-shadow: 0px 0px 0px #000;
+}
+
+
+/* ------ Página principal ------ */
+
+
+/* -- Botones base -- */
+.btn-gigante {
+    display: block;
+    text-decoration: none;
+    font-family: 'VT323', monospace;
+    font-size: 2.2rem;
+    padding: 15px 20px;
+    color: #fff;
+    background-color: #1a1e29;
+    border: 4px solid #fff;
+    text-align: center;
+    text-transform: uppercase;
+    box-shadow: 6px 6px 0px #000;
+    transition: all 0.2s ease;
+}
+
+/* - Botones base active - */
+.btn-gigante:active {
+    transform: translate(6px, 6px);
+    box-shadow: 0px 0px 0px #000;
+}
+
+/* -- Crear partida -- */
+.btn-crear:hover {
+    background-color: #ff007f;
+    border-color: #ff007f;
+    box-shadow: 6px 6px 0px #000, 0 0 20px rgba(255, 0, 127, 0.7);
+    transform: translate(-3px, -3px);
+}
+
+/* -- Unirse a partida -- */
+.btn-unirse:hover {
+    background-color: #00e5ff;
+    border-color: #00e5ff;
+    color: #0b0d12;
+    box-shadow: 6px 6px 0px #000, 0 0 20px rgba(0, 229, 255, 0.7);
+    transform: translate(-3px, -3px);
+}
+
+/* -- Historial -- */
+.btn-historial:hover {
+    background-color: #9c27b0;
+    border-color: #9c27b0;
+    color: #fff; 
+    box-shadow: 6px 6px 0px #000, 0 0 20px rgba(156, 39, 176, 0.7);
+    transform: translate(-3px, -3px);
+}
+
+/* -- Clasificación -- */
+.btn-clasificacion:hover {
+    background-color: #7fff00;
+    border-color: #7fff00;
+    color: #0b0d12;
+    box-shadow: 6px 6px 0px #000, 0 0 20px rgba(127, 255, 0, 0.7);
+    transform: translate(-3px, -3px);
+}
+
+
+/* ------ Acciones de Formulario ------ */
+
+/* -- Botón Subir Foto -- */
+.btn-archivo {
+    display: inline-block;
+    background-color: #00ffcc; 
+    color: #0b0d12;
+    padding: 8px 16px;
+    font-family: 'VT323', monospace;
+    font-size: 1.2rem;
+    text-align: center;
+    cursor: pointer;
+    border: 2px solid #fff;
+    box-shadow: 3px 3px 0px #000;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+/* - Botón Subir Foto hover - */
+.btn-archivo:hover {
+    background-color: #fff;
+    transform: translate(2px, 2px);
+    box-shadow: 5px 5px 0px #000;
+}
+
+/* - Botón Subir Foto con error - */
+.btn-archivo.input-error {
+    border: 2px solid #ff007f !important; 
+    box-shadow: 3px 3px 0px #ff007f !important;
+}
+
+
+
+/* ====== DESPLEGABLES ====== */
+
+
+/* ------ Estructura del menú de acceso ------ */
+
+
+/* -- Contenedor principal -- */
+.pixel-dropdown-container {
+    position: relative;
+    top: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    z-index: 100;
+    min-width: 116px;
+    width: auto;
+}
+
+/* -- Botón principal Acceso -- */
+.btn-desplegable {
+    color: #00e5ff;
+    background-color: #0b0d12;
+    font-size: 1.5rem;
+    font-family: 'VT323', monospace;
+    border: 2px solid #00e5ff;
+    padding: 5px 15px;
+    cursor: pointer;
+    text-transform: uppercase;
+    box-shadow: 2px 2px 0px #000;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: all 0.2s ease;
+    min-width: 116px;
+    width: 100%;
+    white-space: nowrap; /* Evita que el nombre se parta en dos líneas */
+    justify-content: space-between; /* Mantiene el nombre a la izquierda y flecha a la derecha */
+    max-width: 220px;
+}
+
+/* -- Botón principal Acceso Estilo nombre -- */
+.username-text {
+    flex: 1;            /* Ocupa todo el espacio disponible antes de la flecha */
+    white-space: nowrap;/* No rompe la línea */
+    overflow: hidden;   /* Corta el texto */
+    text-overflow: ellipsis; /* Pone puntos suspensivos */
+    text-align: left;
+    min-width: 0;       /* Obligatorio en flexbox para que el texto se deje acortar */
+}
+
+/* - Botón principal hover - */
+.btn-desplegable:hover {
+    background-color: #00e5ff;
+    color: #0b0d12;
+    box-shadow: 2px 2px 0px #000, 0 0 15px rgba(0, 229, 255, 0.6);
+}
+
+/* - Flecha del botón - */
+.flecha {
+    display: inline-block;
+    transition: transform 0.3s ease;
+    flex-shrink: 0; 
+}
+
+/* - Flecha activa - */
+.btn-desplegable.activo .flecha {
+    transform: rotate(90deg);
+}
+
+/* -- Contenedor de las opciones -- */
+.pixel-dropdown-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 15px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-15px);
+    transition: all 0.3s ease;
+    
+    min-width: 116px;
+    width: 100%;
+}
+
+/* - Estado mostrado - */
+.pixel-dropdown-content.mostrar {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+
+/* ------ Opciones del desplegable ------ */
+
+
+/* -- Sub-botones base -- */
+.btn-opcion {
+    text-decoration: none;
+    font-size: 1.2rem;
+    font-family: 'VT323', monospace;
+    padding: 5px 15px;
+    background-color: #0b0d12;
+    text-align: center;
+    box-shadow: 2px 2px 0px #000;
+    transition: all 0.2s ease;
+
+    /* AÑADIMOS ESTO: */
+    width: 100%; /* Para que todos los botones midan lo mismo dentro de la caja */
+    box-sizing: border-box;
+    display: block;
+}
+
+/* -- Entrar -- */
+.login-color {
+    color: #ff9800; 
+    border: 2px solid #ff9800;
+}
+
+/* - Entrar hover - */
+.login-color:hover {
+    background-color: #ff9800;
+    color: #0b0d12;
+    box-shadow: 2px 2px 0px #000, 0 0 10px rgba(255, 152, 0, 0.6);
+    transform: translate(-2px, -2px);
+}
+
+/* -- Registrarse -- */
+.signup-color {
+    color: #d500f9; 
+    border: 2px solid #d500f9;
+}
+
+/* - Registrarse hover - */
+.signup-color:hover {
+    background-color: #d500f9;
+    color: #fff;
+    box-shadow: 2px 2px 0px #000, 0 0 10px rgba(213, 0, 249, 0.6);
+    transform: translate(-2px, -2px);
+}
+
+/* -- Editar Perfil -- */
+.edit-color {
+    color: #e0f7fa; 
+    border: 2px solid #e0f7fa;
+}
+
+/* - Editar Perfil hover - */
+.edit-color:hover {
+    background-color: #e0f7fa;
+    color: #0b0d12;
+    box-shadow: 2px 2px 0px #000, 0 0 10px rgba(224, 247, 250, 0.6);
+    transform: translate(-2px, -2px);
+}
+
+/* -- Salir -- */
+.exit-color {
+    color: #ff0000;
+    border: 2px solid #ff0000;
+}
+
+/* - Salir hover - */
+.exit-color:hover {
+    background-color: rgb(255, 0, 0);
+    color: #fff;
+    box-shadow: 2px 2px 0px #000, 0 0 10px rgba(255, 0, 0, 0.6);
+    transform: translate(-2px, -2px);
+}
+
+
+
+/* ====== COMPONENTES ====== */
+
+
+/* ------ Tarjetas de Jugador ------ */
+
+
+/* -- Tarjeta base -- */
+.tarjeta-jugador {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #0b0d12;
+    border: 2px solid #8892b0;
+    padding: 10px 15px;
+    transition: transform 0.2s ease;
+}
+
+/* - Tarjeta base hover - */
+.tarjeta-jugador:hover {
+    border-color: #7fff00;
+    transform: translateX(5px); /* Pequeño empuje a la derecha al pasar el ratón */
+}
+
+/* -- Elementos de la tarjeta -- */
+.jugador-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* - Foto de perfil - */
+.avatar-clasificacion {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border: 2px solid #fff;
+}
+
+/* - Nombre - */
+.nombre-clasificacion {
+    font-size: 1.8rem;
+    color: #fff;
+}
+
+/* - Puntuación - */
+.puntos-clasificacion {
+    font-size: 1.8rem;
+    color: #7fff00;
+    text-shadow: 1px 1px #000;
+}
