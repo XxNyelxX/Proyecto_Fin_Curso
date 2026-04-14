@@ -28,9 +28,13 @@ CREATE TABLE usuarios (
 -- CURRENT_TIMESTAMP dice que si no viene fecha de php la pone automáticamente
 CREATE TABLE partidas (
     id_partida INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(50),
     fecha_partida TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    dificultad VARCHAR(20) NOT NULL,
-    num_jugadores TINYINT DEFAULT 0,
+    visibilidad VARCHAR(10) DEFAULT 'publica',
+    tiempo_bomba INT DEFAULT 5,
+    turnos_silaba INT DEFAULT 2,
+    vidas INT DEFAULT 2,
+    num_jugadores TINYINT DEFAULT 1,
     id_ganador INT DEFAULT NULL,
     palabras_usadas TEXT DEFAULT '',
     FOREIGN KEY (id_ganador) REFERENCES usuarios(id_usuario) ON DELETE SET NULL ON UPDATE CASCADE

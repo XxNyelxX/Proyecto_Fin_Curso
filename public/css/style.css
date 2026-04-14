@@ -125,6 +125,24 @@ a, a:visited, a:active {
     background: rgba(255, 255, 255, 0.4); /* Se hace un poco más visible al usarla */
 }
 
+/* -- Contenedor Crear Partida -- */
+.contenedor-crear-partida {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* -- Formulario Crear Partida -- */
+.form-crear-partida {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
 
 
 /* ====== TEXTOS Y ANIMACIONES ====== */
@@ -308,6 +326,144 @@ body.modo-estatico .titulo-animado-pixel {
     box-sizing: border-box;
 }
 
+/* ------ Crear Partida ------ */
+
+/* -- Bloques individuales -- */
+.bloque-formulario {
+    text-align: center; /* Centra los labels y contenidos */
+}
+
+/* -- Etiquetas (Labels) -- */
+.label-config {
+    font-family: 'VT323', monospace;
+    font-size: 1.5rem;
+    display: block;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.label-blanco { color: #fff; }
+.label-naranja { color: #ff9800; }
+.label-verde { color: #7fff00; }
+.label-azul { color: #00e5ff; }
+
+/* -- Input Nombre de Sala -- */
+.input-sala {
+    width: 100%;
+    padding: 10px;
+    background-color: #1a1c23;
+    border: 2px solid #8892b0;
+    color: #fff;
+    font-family: 'VT323', monospace;
+    font-size: 1.5rem;
+    text-align: center; /* Centra lo que escribe el usuario */
+    outline: none;
+    box-sizing: border-box;
+}
+
+.input-sala:focus {
+    border-color: #00e5ff;
+}
+
+/* -- Sliders -- */
+.slider-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.slider-valor {
+    color: #fff;
+    font-family: 'VT323', monospace;
+    font-size: 1.5rem;
+}
+
+.slider-pixel {
+    width: 100%;
+    cursor: pointer;
+}
+
+/* -- Grupos de botones (Radios) -- */
+.radio-grupo {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+/* Sobrescribimos el width 100% de btn-opcion para estos botones */
+.btn-radio {
+    cursor: pointer;
+    width: auto !important; 
+    padding: 10px 30px;
+}
+
+.btn-radio-pequeno {
+    cursor: pointer;
+    width: 60px !important;
+    padding: 10px 0;
+}
+
+/* -- Nueva etiqueta de color -- */
+.label-rosa { color: #ff007f; }
+
+/* -- Botones de Selección (Visibilidad y Vidas) -- */
+.btn-selector {
+    cursor: pointer;
+    width: 140px; /* Tamaño más grande y unificado para TODOS */
+    padding: 15px 0;
+    font-size: 1.8rem;
+    font-family: 'VT323', monospace;
+    text-align: center;
+    border: 2px solid;
+    background-color: transparent;
+    transition: all 0.2s;
+    display: inline-block;
+}
+
+/* 1. Pública (Azul) */
+.btn-publica { color: #00e5ff; border-color: #00e5ff; }
+input[type="radio"]:checked + .btn-publica {
+    background-color: #00e5ff;
+    color: #0b0d12;
+}
+
+/* 2. Privada (Morado Retro) */
+.btn-privada { color: #b026ff; border-color: #b026ff; }
+input[type="radio"]:checked + .btn-privada {
+    background-color: #b026ff;
+    color: #0b0d12;
+}
+
+/* 3. Vidas (Borde Rojo) */
+.btn-vidas {
+    color: #fff; /* Color para los iconos cuando no están seleccionados */
+    border-color: #ff003c; /* Borde rojo */
+    display: flex; /* Para centrar los iconos */
+    justify-content: center;
+    align-items: center;
+    padding: 10px 0; /* Un poco menos de padding vertical */
+}
+
+/* Estado seleccionado (ya en established) */
+input[type="radio"]:checked + .btn-vidas {
+    background-color: #ff003c;
+    color: #fff; /* Mantenemos iconos blancos al seleccionar */
+}
+
+/* Contenedor de iconos dentro del botón */
+.iconos-vidas {
+    display: flex;
+    justify-content: center;
+    gap: 8px; /* Espaciado entre corazones */
+}
+
+/* El icono SVG en sí */
+.corazon-icon {
+    width: 24px; /* Tamaño unificado para todos */
+    height: 24px;
+    display: block;
+    fill: currentColor; /* El SVG usará el color definido en .btn-vidas */
+}
 
 
 /* ====== BOTONES ====== */
