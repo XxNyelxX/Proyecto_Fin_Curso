@@ -1,6 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
 
-
+main {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centra el contenido horizontalmente */
+    justify-content: center; /* Centra el contenido verticalmente */
+}
 
 /* ====== BODY ====== */
 
@@ -26,6 +33,20 @@ body.modo-estatico * {
     animation: none !important;
     transition: none !important;
     background-image: none !important; 
+}
+
+/* Excepción para que los puntos sigan en "ola" en modo estático */
+body.modo-estatico .dot {
+    animation: olaPuntos 1.4s infinite !important;
+}
+
+/* Re-especificamos los retardos para que no salten a la vez */
+body.modo-estatico .dot:nth-child(2) { 
+    animation-delay: 0.2s !important; 
+}
+
+body.modo-estatico .dot:nth-child(3) { 
+    animation-delay: 0.4s !important; 
 }
 
 /* -- Estilos base de los links -- */
@@ -132,17 +153,151 @@ a, a:visited, a:active {
     align-items: center;
     width: 100%;
     box-sizing: border-box;
+    position: relative;
 }
 
 /* -- Formulario Crear Partida -- */
 .form-crear-partida {
-    width: 100%;
-    max-width: 500px;
+    width: 90%;
+    max-width: 650px;
+    margin: 0 auto; /* centrado */
     display: flex;
     flex-direction: column;
     gap: 30px;
 }
 
+
+/* -- Sala de Espera (Mesa de Xogo) -- */
+.contenedor-sala-espera {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 100vh;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.header-sala {
+    margin-bottom: 0;
+}
+
+/* -- El Tablero Circular (Más amplio para texto de juego) -- */
+.mesa-juego {
+    position: relative;
+    width: 800px;
+    height: 800px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bomba-central {
+    position: relative;
+    z-index: 10;
+    width: 140px;
+}
+
+.bomba-central img {
+    width: 100%;
+}
+
+.contador-jugadores {
+    font-size: 2.2rem;
+    margin-top: -5px;
+}
+
+/* -- Slots de Jugadores -- */
+.jugador-slot {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* -- Coordenadas perfectas (Radio 380px) -- */
+/* Se usa calc(-50% + Xpx) para que el centro exacto de la foto caiga en el punto geométrico */
+.slot-0  { transform: translate(calc(-50% + 0px), calc(-50% - 380px)); } 
+.slot-1  { transform: translate(calc(-50% + 145px), calc(-50% - 351px)); }
+.slot-2  { transform: translate(calc(-50% + 269px), calc(-50% - 269px)); }
+.slot-3  { transform: translate(calc(-50% + 351px), calc(-50% - 145px)); }
+.slot-4  { transform: translate(calc(-50% + 380px), calc(-50% + 0px)); } 
+.slot-5  { transform: translate(calc(-50% + 351px), calc(-50% + 145px)); }
+.slot-6  { transform: translate(calc(-50% + 269px), calc(-50% + 269px)); }
+.slot-7  { transform: translate(calc(-50% + 145px), calc(-50% + 351px)); }
+.slot-8  { transform: translate(calc(-50% + 0px), calc(-50% + 380px)); }
+.slot-9  { transform: translate(calc(-50% - 145px), calc(-50% + 351px)); }
+.slot-10 { transform: translate(calc(-50% - 269px), calc(-50% + 269px)); }
+.slot-11 { transform: translate(calc(-50% - 351px), calc(-50% + 145px)); }
+.slot-12 { transform: translate(calc(-50% - 380px), calc(-50% + 0px)); }
+.slot-13 { transform: translate(calc(-50% - 351px), calc(-50% - 145px)); }
+.slot-14 { transform: translate(calc(-50% - 269px), calc(-50% - 269px)); }
+.slot-15 { transform: translate(calc(-50% - 145px), calc(-50% - 351px)); }
+
+/* -- Elementos del Jugador -- */
+.vidas-jugador {
+    color: #ff003c;
+    font-size: 1.2rem;
+    margin-bottom: 2px;
+}
+
+.nombre-jugador {
+    color: white;
+    background: rgba(0,0,0,0.6);
+    padding: 1px 8px;
+    border-radius: 3px;
+    font-size: 1.1rem;
+    margin-bottom: 5px; /* Separación de la foto */
+}
+
+.avatar-wrapper {
+    width: 65px;
+    height: 65px;
+    border: 3px solid #fff;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #222;
+}
+
+/* -- ¡IMPORTANTE! Forzar a la imagen a medir 70px -- */
+.avatar-wrapper img {
+    width: 100% !important;  /* Obligatorio ocupar todo el ancho del círculo (70px) */
+    height: 100% !important; /* Obligatorio ocupar todo el alto (70px) */
+    object-fit: cover;      /* Recorta la imagen para que encaje sin deformarse */
+    display: block;          /* Evita espacios en blanco extraños debajo */
+}
+
+/* Quitamos el brillo (box-shadow) del host */
+.avatar-wrapper.es-host {
+    border-color: #ffcc00;
+    box-shadow: none; 
+}
+
+
+/* -- Puntos animados -- */
+.esperando-mini {
+    margin-top: 10px;
+    font-size: 1.1rem;
+    color: #8892b0;
+    text-align: center;
+}
+
+.dot {
+    animation: olaPuntos 1.4s infinite;
+    display: inline-block;
+}
+.dot:nth-child(2) { animation-delay: 0.2s; }
+.dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes olaPuntos {
+    0%, 100% { opacity: 0.3; transform: translateY(0); }
+    50% { opacity: 1; transform: translateY(-3px); }
+}
 
 
 /* ====== TEXTOS Y ANIMACIONES ====== */
@@ -331,6 +486,7 @@ body.modo-estatico .titulo-animado-pixel {
 /* -- Bloques individuales -- */
 .bloque-formulario {
     text-align: center; /* Centra los labels y contenidos */
+    position: relative
 }
 
 /* -- Etiquetas (Labels) -- */
@@ -387,7 +543,8 @@ body.modo-estatico .titulo-animado-pixel {
 .radio-grupo {
     display: flex;
     justify-content: center;
-    gap: 20px;
+    gap: 10px;
+    width: 100%;
 }
 
 /* Sobrescribimos el width 100% de btn-opcion para estos botones */
@@ -420,6 +577,12 @@ body.modo-estatico .titulo-animado-pixel {
     display: inline-block;
 }
 
+/* - Efecto fade y contracción al hacer clic (Active) - */
+.btn-selector:active {
+    transform: scale(0.95); 
+    opacity: 0.5; /* Efecto fade (se vuelve semitransparente un instante) */
+}
+
 /* 1. Pública (Azul) */
 .btn-publica { color: #00e5ff; border-color: #00e5ff; }
 input[type="radio"]:checked + .btn-publica {
@@ -427,27 +590,27 @@ input[type="radio"]:checked + .btn-publica {
     color: #0b0d12;
 }
 
-/* 2. Privada (Morado Retro) */
+/* 2. Privada (Morado) */
 .btn-privada { color: #b026ff; border-color: #b026ff; }
 input[type="radio"]:checked + .btn-privada {
     background-color: #b026ff;
     color: #0b0d12;
 }
 
-/* 3. Vidas (Borde Rojo) */
+/* 3. Vidas */
 .btn-vidas {
     color: #fff; /* Color para los iconos cuando no están seleccionados */
     border-color: #ff003c; /* Borde rojo */
     display: flex; /* Para centrar los iconos */
     justify-content: center;
     align-items: center;
-    padding: 10px 0; /* Un poco menos de padding vertical */
+    padding: 10px 0;
 }
 
 /* Estado seleccionado (ya en established) */
 input[type="radio"]:checked + .btn-vidas {
     background-color: #ff003c;
-    color: #fff; /* Mantenemos iconos blancos al seleccionar */
+    color: #fff;
 }
 
 /* Contenedor de iconos dentro del botón */
@@ -457,12 +620,12 @@ input[type="radio"]:checked + .btn-vidas {
     gap: 8px; /* Espaciado entre corazones */
 }
 
-/* El icono SVG en sí */
+/* Icono SVG pixel art */
 .corazon-icon {
-    width: 24px; /* Tamaño unificado para todos */
-    height: 24px;
+    width: 20px; 
+    height: 18px;
     display: block;
-    fill: currentColor; /* El SVG usará el color definido en .btn-vidas */
+    fill: currentColor;
 }
 
 
@@ -542,6 +705,26 @@ body.modo-estatico .btn-animaciones:hover {
     background-color: #8892b0;
     color: #0b0d12;
     box-shadow: 2px 2px 0px #000;
+}
+
+/* - Evitar cambios de tamaño/posición de botones en modo estático - */
+body.modo-estatico .btn-selector:active,
+body.modo-estatico .btn-volver:hover,
+body.modo-estatico .btn-volver:active,
+body.modo-estatico .btn-gigante:hover,
+body.modo-estatico .btn-gigante:active,
+body.modo-estatico .btn-intercambio:active,
+body.modo-estatico .btn-archivo:hover,
+body.modo-estatico .login-color:hover,
+body.modo-estatico .signup-color:hover,
+body.modo-estatico .edit-color:hover,
+body.modo-estatico .exit-color:hover,
+body.modo-estatico .btn-abandonar-sala:hover,
+body.modo-estatico .btn-abandonar-sala:active,
+body.modo-estatico .btn-arrancar.listo:hover,
+body.modo-estatico .btn-arrancar.listo:active {
+    transform: none !important;
+    opacity: 1 !important;
 }
 
 /* -- Botón de intercambio (Entrar <-> Rexistrarse) -- */
@@ -657,6 +840,121 @@ body.modo-estatico .btn-animaciones:hover {
 .btn-archivo.input-error {
     border: 2px solid #ff007f !important; 
     box-shadow: 3px 3px 0px #ff007f !important;
+}
+
+
+/* ------ Sala ------ */
+
+/* -- Botón Añadir Clon (Abajo Izquierda) -- */
+.btn-anadir-clon {
+    position: fixed;
+    bottom: 50px;
+    left: 50px; /* Misma altura que el de abandonar, pero a la izquierda */
+    background-color: #01b0c4; /* Azul cian para diferenciarlo */
+    color: #0b0d12;
+    border: 4px solid #fff;
+    padding: 10px 20px;
+    font-size: 1.8rem;
+    box-shadow: 6px 6px 0px #000;
+    text-transform: uppercase;
+    font-family: 'VT323', monospace;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    z-index: 100;
+}
+
+.btn-anadir-clon:hover {
+    transform: translate(3px, 3px);
+    box-shadow: 9px 9px 0px #000;
+}
+
+
+/* Estado bloqueado cuando la sala está llena (Igual que arrancar) */
+.btn-anadir-clon.bloqueado {
+    background-color: #444 !important;
+    border-color: #666 !important;
+    color: #888 !important;
+    transform: scale(0.9) !important;
+    box-shadow: none !important;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+/* -- Contenedor del Botón Arrincar -- */
+.acciones-sala {
+    position: absolute;
+    bottom: 50px;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    width: max-content;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px; /* Separa un poco el botón del texto de "Agardando xogadores..." si aparece */
+}
+
+/* -- Botón Arrancar (Más pequeño) -- */
+.btn-arrancar {
+    font-size: 1.8rem !important;
+    padding: 10px 30px !important;
+    margin-top: 0;
+}
+
+.btn-arrancar.bloqueado {
+    transform: scale(0.9);
+    opacity: 0.6;
+}
+
+.btn-arrancar.listo {
+    transform: scale(1.05);
+}
+
+.btn-arrancar.listo:hover {
+    transform: translate(3px, 3px) scale(1.1); 
+    background-color: #45a049 !important;
+}
+
+/* -- Botón Abandonar (Abajo Derecha) -- */
+.btn-abandonar-sala {
+    position: absolute;
+    bottom: 50px;
+    right: 50px; /* Más separado del borde */
+    background-color: #ff0000;
+    color: white;
+    border: 4px solid #fff;
+    padding: 10px 20px;
+    font-family: 'VT323', monospace;
+    font-size: 1.8rem;
+    box-shadow: 6px 6px 0px #000;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+}
+
+.btn-abandonar-sala:hover {
+    background-color: #cc0000;
+    transform: translate(3px, 3px);
+    box-shadow: 9px 9px 0px #000;
+}
+
+/* -- Botón Arrancar (Lógica de tamaño y estado) -- */
+
+
+.btn-arrancar.bloqueado {
+    background-color: #444 !important;
+    border-color: #666 !important;
+    color: #888 !important;
+    transform: scale(0.85); /* "Pulsado" por defecto */
+    box-shadow: none !important;
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.btn-arrancar.listo {
+    background-color: #4caf50 !important;
+    border-color: #fff !important;
+    transform: scale(1.1); /* Se hace grande al desbloquearse */
+    box-shadow: 6px 6px 0px #000;
 }
 
 

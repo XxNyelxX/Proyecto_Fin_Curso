@@ -1,5 +1,9 @@
 <a href="index.php" class="btn-volver">&lt; VOLVER</a>
-<a href="?c=acceso&a=Registrarse" class="btn-intercambio signup-color">REXISTRARSE &gt;</a>
+
+<?php if (!isset($_SESSION['user_id'])) { ?>
+    <a href="?c=acceso&a=Registrarse" class="btn-intercambio signup-color">REXISTRARSE &gt;</a>
+<?php } ?>
+
 <div class="pixel-login-container">
     <h2 class="titulo-animado-pixel">INICIAR SESIÓN</h2>
     

@@ -13,6 +13,12 @@ class AccesoController {
 
     // Acción para mostrar el formulario de INICIO
     public function Entrar() {
+        // SEGURIDAD: Si está logueado fuera
+        if (isset($_SESSION['user_id'])) {
+            header("Location: index.php");
+            exit();
+        }
+
         require_once '../view/header.php';
         require_once '../view/acceso/entrar-form.php';
         require_once '../view/footer.php';
@@ -20,6 +26,12 @@ class AccesoController {
 
     // Acción para mostrar el formulario de CREAR CUENTA
     public function Registrarse() {
+        // SEGURIDAD: Si está logueado fuera
+        if (isset($_SESSION['user_id'])) {
+            header("Location: index.php");
+            exit();
+        }
+
         require_once '../view/header.php';
         require_once '../view/acceso/registrarse-form.php';
         require_once '../view/footer.php';
@@ -45,6 +57,18 @@ class AccesoController {
 
     // Acción para validar la entrada
     public function ValidarEntrada() {
+        // Bloqueo si ya está logueado
+        if (isset($_SESSION['user_id'])) {
+            header("Location: index.php");
+            exit();
+        }
+
+        // Bloqueo si intentan entrar copiando la URL en vez de usar el formulario
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header("Location: index.php");
+            exit();
+        }
+
         $errores = [];
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -88,6 +112,18 @@ class AccesoController {
 
     // Acción para validar el registro
     public function ValidarRegistro() {
+        // Bloqueo si ya está logueado
+        if (isset($_SESSION['user_id'])) {
+            header("Location: index.php");
+            exit();
+        }
+
+        // Bloqueo si intentan entrar copiando la URL en vez de usar el formulario
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header("Location: index.php");
+            exit();
+        }
+
         $errores = [];
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -194,6 +230,11 @@ class AccesoController {
         // SEGURIDAD: Si no está logueado fuera
         if (!isset($_SESSION['user_id'])) {
             header("Location: ?c=acceso&a=Entrar");
+            exit();
+        }
+        // Bloqueo si intentan entrar copiando la URL en vez de usar el formulario
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header("Location: index.php");
             exit();
         }
 
@@ -383,3 +424,4 @@ class AccesoController {
         }
     }
 }
+?>

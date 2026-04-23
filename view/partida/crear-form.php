@@ -9,7 +9,7 @@
         <div class="bloque-formulario">
             <label class="label-config label-blanco">NOME DA SALA:</label>
             <input type="text" name="nombre" autocomplete="off" 
-                   value="Partida de <?php echo htmlspecialchars($_SESSION['username']); ?>"
+                   value="Sala de <?php echo htmlspecialchars($_SESSION['username']); ?>"
                    class="input-sala <?php echo isset($errores['nombre']) ? 'input-error' : ''; ?>">
         </div>
 
@@ -22,6 +22,11 @@
                 <input type="radio" id="vis_privada" name="visibilidad" value="privada" style="display: none;">
                 <label for="vis_privada" class="btn-selector btn-privada">PRIVADA</label>
             </div>
+            
+            <input type="text" id="campo_contrasena" name="contrasena" autocomplete="off" 
+                   placeholder="Contrasinal (opcional)" 
+                   maxlength="15"
+                   class="input-sala" style="margin-top: 15px;">
         </div>
 
         <div>
@@ -49,8 +54,8 @@
                 <input type="radio" id="v1" name="vidas" value="1" style="display: none;">
                 <label for="v1" class="btn-selector btn-vidas">
                     <div class="iconos-vidas">
-                        <svg class="corazon-icon" viewBox="0 0 13 11" fill="currentColor">
-                          <path d="M6.5 11C6.5 11 0 7 0 3.5C0 1.5 2 0 4.5 0C6 0 7 1 8 2C9 1 10 0 11.5 0C14 0 16 1.5 16 3.5C16 7 9.5 11 9.5 11L6.5 11Z"/>
+                        <svg class="corazon-icon" viewBox="0 0 9 8" fill="currentColor" shape-rendering="crispEdges">
+                            <path d="M1 1 V0 H3 V1 H6 V0 H8 V1 H9 V4 H8 V5 H7 V6 H6 V7 H5 V8 H4 V7 H3 V6 H2 V5 H1 V4 H0 V1 Z"/>
                         </svg>
                     </div>
                 </label>
@@ -58,11 +63,11 @@
                 <input type="radio" id="v2" name="vidas" value="2" checked style="display: none;">
                 <label for="v2" class="btn-selector btn-vidas">
                     <div class="iconos-vidas">
-                        <svg class="corazon-icon" viewBox="0 0 13 11" fill="currentColor">
-                          <path d="M6.5 11C6.5 11 0 7 0 3.5C0 1.5 2 0 4.5 0C6 0 7 1 8 2C9 1 10 0 11.5 0C14 0 16 1.5 16 3.5C16 7 9.5 11 9.5 11L6.5 11Z"/>
+                        <svg class="corazon-icon" viewBox="0 0 9 8" fill="currentColor" shape-rendering="crispEdges">
+                            <path d="M1 1 V0 H3 V1 H6 V0 H8 V1 H9 V4 H8 V5 H7 V6 H6 V7 H5 V8 H4 V7 H3 V6 H2 V5 H1 V4 H0 V1 Z"/>
                         </svg>
-                        <svg class="corazon-icon" viewBox="0 0 13 11" fill="currentColor">
-                          <path d="M6.5 11C6.5 11 0 7 0 3.5C0 1.5 2 0 4.5 0C6 0 7 1 8 2C9 1 10 0 11.5 0C14 0 16 1.5 16 3.5C16 7 9.5 11 9.5 11L6.5 11Z"/>
+                        <svg class="corazon-icon" viewBox="0 0 9 8" fill="currentColor" shape-rendering="crispEdges">
+                            <path d="M1 1 V0 H3 V1 H6 V0 H8 V1 H9 V4 H8 V5 H7 V6 H6 V7 H5 V8 H4 V7 H3 V6 H2 V5 H1 V4 H0 V1 Z"/>
                         </svg>
                     </div>
                 </label>
@@ -70,14 +75,14 @@
                 <input type="radio" id="v3" name="vidas" value="3" style="display: none;">
                 <label for="v3" class="btn-selector btn-vidas">
                     <div class="iconos-vidas">
-                        <svg class="corazon-icon" viewBox="0 0 13 11" fill="currentColor">
-                          <path d="M6.5 11C6.5 11 0 7 0 3.5C0 1.5 2 0 4.5 0C6 0 7 1 8 2C9 1 10 0 11.5 0C14 0 16 1.5 16 3.5C16 7 9.5 11 9.5 11L6.5 11Z"/>
+                        <svg class="corazon-icon" viewBox="0 0 9 8" fill="currentColor" shape-rendering="crispEdges">
+                            <path d="M1 1 V0 H3 V1 H6 V0 H8 V1 H9 V4 H8 V5 H7 V6 H6 V7 H5 V8 H4 V7 H3 V6 H2 V5 H1 V4 H0 V1 Z"/>
                         </svg>
-                        <svg class="corazon-icon" viewBox="0 0 13 11" fill="currentColor">
-                          <path d="M6.5 11C6.5 11 0 7 0 3.5C0 1.5 2 0 4.5 0C6 0 7 1 8 2C9 1 10 0 11.5 0C14 0 16 1.5 16 3.5C16 7 9.5 11 9.5 11L6.5 11Z"/>
+                        <svg class="corazon-icon" viewBox="0 0 9 8" fill="currentColor" shape-rendering="crispEdges">
+                            <path d="M1 1 V0 H3 V1 H6 V0 H8 V1 H9 V4 H8 V5 H7 V6 H6 V7 H5 V8 H4 V7 H3 V6 H2 V5 H1 V4 H0 V1 Z"/>
                         </svg>
-                        <svg class="corazon-icon" viewBox="0 0 13 11" fill="currentColor">
-                          <path d="M6.5 11C6.5 11 0 7 0 3.5C0 1.5 2 0 4.5 0C6 0 7 1 8 2C9 1 10 0 11.5 0C14 0 16 1.5 16 3.5C16 7 9.5 11 9.5 11L6.5 11Z"/>
+                        <svg class="corazon-icon" viewBox="0 0 9 8" fill="currentColor" shape-rendering="crispEdges">
+                            <path d="M1 1 V0 H3 V1 H6 V0 H8 V1 H9 V4 H8 V5 H7 V6 H6 V7 H5 V8 H4 V7 H3 V6 H2 V5 H1 V4 H0 V1 Z"/>
                         </svg>
                     </div>
                 </label>
@@ -87,10 +92,10 @@
         <div>
             <div class="slider-header">
                 <label class="label-config label-azul" style="margin-bottom: 0;">MÁXIMO XOGADORES:</label>
-                <span id="val-players" class="slider-valor">8</span>
+                <span id="val-players" class="slider-valor">4</span>
             </div>
-            <input type="range" name="max_jugadores" min="2" max="16" value="8" class="slider-pixel"
-                   oninput="document.getElementById('val-players').innerText = this.value">
+            <input type="range" name="max_jugadores" min="2" max="16" value="4" class="slider-pixel"
+                oninput="document.getElementById('val-players').innerText = this.value">
         </div>
 
         <button type="submit" class="btn-gigante btn-crear" style="width: 100%; margin-top: 10px;">
@@ -100,7 +105,7 @@
     </form>
 
     <?php if (!empty($errores)) { ?>
-        <div class="mensaje-error" style="position: static; transform: none; margin-top: 20px;">
+        <div class="mensaje-error">
             <?php foreach ($errores as $error) { ?>
                 <p>> <?php echo $error; ?></p>
             <?php } ?>
@@ -108,36 +113,4 @@
     <?php } ?>
 
 </div>
-
-<script src="../public/js/boton-partida.js"></script>
-
-<!-- <script>
-    // Script temporal para iluminar el botón seleccionado de Pública/Privada
-    const visLabels = document.querySelectorAll('label[for^="vis_"]');
-    const visRadios = document.querySelectorAll('input[name="visibilidad"]');
-    visRadios.forEach(radio => {
-        radio.addEventListener('change', () => {
-            visLabels.forEach(l => { l.style.backgroundColor = 'transparent'; l.style.color = l.style.borderColor; });
-            const selectedLabel = document.querySelector(`label[for="${radio.id}"]`);
-            selectedLabel.style.backgroundColor = selectedLabel.style.borderColor;
-            selectedLabel.style.color = '#0b0d12';
-        });
-    });
-
-    // Script temporal para iluminar las Vidas
-    const vidasLabels = document.querySelectorAll('label[for^="vidas_"]');
-    const vidasRadios = document.querySelectorAll('input[name="vidas"]');
-    vidasRadios.forEach(radio => {
-        radio.addEventListener('change', () => {
-            vidasLabels.forEach(l => { l.style.borderColor = '#8892b0'; l.style.color = '#8892b0'; l.style.backgroundColor = 'transparent'; });
-            const selectedLabel = document.querySelector(`label[for="${radio.id}"]`);
-            selectedLabel.style.borderColor = '#ffeb3b';
-            selectedLabel.style.color = '#0b0d12';
-            selectedLabel.style.backgroundColor = '#ffeb3b';
-        });
-    });
-    
-    // Disparar eventos iniciales para que se coloreen al cargar
-    document.querySelector('input[name="visibilidad"]:checked').dispatchEvent(new Event('change'));
-    document.querySelector('input[name="vidas"]:checked').dispatchEvent(new Event('change'));
-</script> -->
+<script src="../public/js/contrasinal.js"></script>

@@ -1,5 +1,8 @@
 <a href="index.php" class="btn-volver">&lt; VOLVER</a>
-<a href="?c=acceso&a=Entrar" class="btn-intercambio login-color">ENTRAR &gt;</a>
+
+<?php if (!isset($_SESSION['user_id'])) { ?>
+    <a href="?c=acceso&a=Entrar" class="btn-intercambio login-color">ENTRAR &gt;</a>
+<?php } ?>
 
 <div class="contenedor-central">
     <div class="pixel-login-container">
