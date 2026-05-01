@@ -152,10 +152,36 @@ class PartidaController {
                 header("Location: index.php");
                 exit();
             }
+        } else {
+            $id_usuario = $_SESSION['user_id'];
+            // Si no es el host ni sus clones, comprobamos si ya está en la sala
+            $ya_esta_dentro = $this->modelo->ComprobarSiEstaEnPartida($id_partida, $id_usuario);
+            
+            // Si hay hueco, lo metemos
+            if (!$ya_esta_dentro && $total_actual < $partida['max_jugadores']) {
+                $this->modelo->AñadirJugadorAPartida($id_partida, $id_usuario);
+                header("Location: ?c=partida&a=Sala&id=" . $id_partida);
+                exit();
+            }
         }
-        // ------------------------------------
 
         $jugadores = $this->modelo->ObtenerJugadoresEnPartida($id_partida);
+
+        if (isset($_SESSION['user_id'])) {
+            $sigoDentro = false;
+            foreach ($jugadores as $j) {
+                if ($j['id_usuario'] == $_SESSION['user_id']) {
+                    $sigoDentro = true;
+                    break;
+                }
+            }
+
+            // Si el sendBeacon lo borró al recargar, sigoDentro será false y lo echamos
+            if (!$sigoDentro) {
+                header("Location: ?c=inicio&a=Index");
+                exit(); 
+            }
+        }
 
         require_once '../view/header.php';
         require_once '../view/partida/sala.php';
@@ -240,6 +266,53 @@ class PartidaController {
         }
 
         echo json_encode(['status' => 'error', 'mensaje' => 'Sala llena o no autorizado']);
+    }
+
+    public function DatosSalaJSON() {
+        header('Content-Type: application/json');
+        
+        if (!isset($_GET['id'])) {
+            echo json_encode(['error' => 'No hay ID']);
+            return;
+        }
+
+        $id_partida = (int)$_GET['id'];
+        
+        // Sacamos los datos de la Base de Datos
+        $partida = $this->modelo->ObtenerPartidaPorId($id_partida);
+        $jugadores = $this->modelo->ObtenerJugadoresEnPartida($id_partida);
+
+        // Los enviamos empaquetados para que JavaScript los lea
+        echo json_encode([
+            'id_host' => $partida['id_host'],
+            'max_jugadores' => $partida['max_jugadores'],
+            'vidas' => $partida['vidas'],
+            'jugadores' => $jugadores
+        ]);
+    }
+
+    public function ExpulsarJugador() {
+        header('Content-Type: application/json');
+
+        // Comprobamos que nos mandan los datos
+        if (!isset($_GET['id_partida']) || !isset($_GET['id_usuario'])) {
+            echo json_encode(['status' => 'error', 'mensaje' => 'Datos incompletos']);
+            return;
+        }
+
+        $id_partida = (int)$_GET['id_partida'];
+        $id_expulsado = (int)$_GET['id_usuario'];
+
+        // SEGURIDAD: Comprobamos que el que pide esto es el Host real
+        $partida = $this->modelo->ObtenerPartidaPorId($id_partida);
+        if ($partida['id_host'] != $_SESSION['user_id']) {
+            echo json_encode(['status' => 'error', 'mensaje' => 'Non tes permisos']);
+            return;
+        }
+
+        $this->modelo->SalirDePartida($id_partida, $id_expulsado);
+
+        echo json_encode(['status' => 'ok']);
     }
 
 }

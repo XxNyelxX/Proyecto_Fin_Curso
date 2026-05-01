@@ -197,16 +197,22 @@ a, a:visited, a:active {
 .bomba-central {
     position: relative;
     z-index: 10;
-    width: 140px;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Esto fuerza a la imagen a quedarse en el medio */
+    justify-content: center;
 }
 
 .bomba-central img {
-    width: 100%;
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
 }
 
 .contador-jugadores {
     font-size: 2.2rem;
     margin-top: -5px;
+    text-align: center;
 }
 
 /* -- Slots de Jugadores -- */
@@ -218,6 +224,7 @@ a, a:visited, a:active {
     display: flex;
     flex-direction: column;
     align-items: center;
+    z-index: 1;
 }
 
 /* -- Coordenadas perfectas (Radio 380px) -- */
@@ -262,6 +269,9 @@ a, a:visited, a:active {
     border-radius: 50%;
     overflow: hidden;
     background: #222;
+    position: relative;
+    z-index: 2; 
+    cursor: pointer;
 }
 
 /* -- ¡IMPORTANTE! Forzar a la imagen a medir 70px -- */
@@ -882,7 +892,7 @@ body.modo-estatico .btn-arrancar.listo:active {
 
 /* -- Contenedor del Botón Arrincar -- */
 .acciones-sala {
-    position: absolute;
+    position: fixed;
     bottom: 50px;
     left: 0;
     right: 0;
@@ -917,7 +927,7 @@ body.modo-estatico .btn-arrancar.listo:active {
 
 /* -- Botón Abandonar (Abajo Derecha) -- */
 .btn-abandonar-sala {
-    position: absolute;
+    position: fixed;
     bottom: 50px;
     right: 50px; /* Más separado del borde */
     background-color: #ff0000;
@@ -1179,4 +1189,82 @@ body.modo-estatico .btn-arrancar.listo:active {
     font-size: 1.8rem;
     color: #7fff00;
     text-shadow: 1px 1px #000;
+}
+
+/* ------ Panel de Expulsión (Cortina) ------ */
+
+/* -- Envoltorio para centrar cortina y foto -- */
+.contenedor-avatar-panel {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* -- Asegurarnos de que el avatar tape la cortina -- */
+.avatar-wrapper {
+    position: relative;
+    z-index: 2; /* Por encima del panel */
+    cursor: pointer;
+}
+
+/* -- Estructura de la cortina -- */
+.panel-expulsar {
+    position: absolute;
+    top: 50%;
+    left: 50%; /* Nace desde el centro exacto de la foto */
+    
+    /* El truco de la cortina: escondido un poco a la izquierda */
+    transform: translateY(-50%) translateX(-20px); 
+    
+    background-color: rgb(175, 24, 60);
+    border: 2px solid #ff003c;
+    border-left: none;
+    border-radius: 0 10px 10px 0;
+    
+    /* 45px de padding izquierdo saltan el radio de la foto (32.5px) para que el texto se lea */
+    padding: 10px 15px 10px 45px; 
+    
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    
+    opacity: 0;
+    visibility: hidden; /* Mejor que pointer-events para ocultar del todo */
+    z-index: 1; /* Escondido detrás del avatar (z-index: 2) */
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+}
+
+/* -- Estado Abierto -- */
+.panel-expulsar.abierto {
+    /* Desliza hasta el centro real (0) */
+    transform: translateY(-50%) translateX(0); 
+    opacity: 1;
+    visibility: visible;
+}
+
+/* -- Texto del panel -- */
+.texto-expulsar {
+    color: white;
+    font-family: 'VT323', monospace;
+    font-size: 1.2rem;
+    white-space: nowrap;
+}
+
+/* -- Botón Echar -- */
+.btn-expulsar-accion {
+    background-color: #ff003c;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    font-family: 'VT323', monospace;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 2px 2px 0px #000;
+    transition: transform 0.1s;
+}
+
+.btn-expulsar-accion:active {
+    transform: translate(2px, 2px); 
+    box-shadow: 0px 0px 0px #000;
 }

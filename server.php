@@ -6,7 +6,7 @@ use MyApp\Chat;
 
 // Incluimos el cargador automático de Composer
 require __DIR__ . '/vendor/autoload.php';
-// Incluimos nuestra clase Chat
+// Incluimos la clase Chat
 require __DIR__ . '/socket/Chat.php';
 
 // Configuramos el servidor en el puerto 8080
