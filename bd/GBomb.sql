@@ -41,6 +41,8 @@ CREATE TABLE partidas (
     id_ganador INT DEFAULT NULL,
     palabras_usadas TEXT DEFAULT '',
     estado VARCHAR(15) DEFAULT 'espera',
+    turno_actual INT DEFAULT 0,
+    silaba_actual VARCHAR(10) DEFAULT '',
     FOREIGN KEY (id_host) REFERENCES usuarios(id_usuario) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (id_ganador) REFERENCES usuarios(id_usuario) ON DELETE SET NULL ON UPDATE CASCADE
 );
@@ -50,8 +52,9 @@ CREATE TABLE partidas_jugadores (
     id_partida_jugador INT AUTO_INCREMENT PRIMARY KEY,
     id_partida INT NOT NULL,
     id_usuario INT NOT NULL,
+    vidas_restantes INT DEFAULT 0,
     FOREIGN KEY (id_partida) REFERENCES partidas(id_partida) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- Tabla PARTIDAS_JUGADAS

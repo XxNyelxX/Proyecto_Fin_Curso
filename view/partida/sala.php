@@ -41,30 +41,32 @@
             $claseBoton = $listo ? 'btn-gigante btn-arrancar listo' : 'btn-gigante btn-arrancar bloqueado';
         ?>
 
-        <?php if ($esHost) {
+        <!-- PANEL DEL HOST (Oculto si eres invitado) -->
+        <div id="panel-host" style="display: <?php echo $esHost ? 'block' : 'none'; ?>;">
+            <?php 
             $lleno = count($jugadores) >= $partida['max_jugadores'];
             $claseClon = $lleno ? 'btn-anadir-clon bloqueado' : 'btn-anadir-clon';
-        ?>
-        
+            ?>
             <a href="#" data-id="<?php echo $partida['id_partida']; ?>" class="<?php echo $claseClon; ?>" id="btnAnadirClon">
             ENGADIR XOGADOR
             </a>
 
-            <?php if (!$listo) { ?>
-                <p class="esperando-mini">
-                    Agardando xogadores<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
-                </p>
-            <?php } ?>
+            <p class="esperando-mini" style="display: <?php echo $listo ? 'none' : 'block'; ?>;">
+                Agardando xogadores<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
+            </p>
             
             <a href="<?php echo ($listo) ? '?c=partida&a=Empezar&id='.$partida['id_partida'] : '#'; ?>" 
                 class="<?php echo $claseBoton; ?>">
                 ARRINCAR PARTIDA
             </a>
-        <?php } else { ?>
+        </div>
+
+        <!-- PANEL DEL INVITADO (Oculto si eres host) -->
+        <div id="panel-invitado" style="display: <?php echo $esHost ? 'none' : 'block'; ?>;">
             <p class="esperando-mini" style="margin-bottom: 20px;">
                 Agardando a que o host arrinque a partida<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
             </p>
-        <?php } ?>
+        </div>
     </div>
 
     <a href="?c=partida&a=Abandonar&id=<?php echo $partida['id_partida']; ?>" class="btn-abandonar-sala">ABANDONAR</a>
@@ -92,7 +94,7 @@
     
     const MI_NOMBRE = "<?php echo $mi_nombre; ?>";
     const MI_FOTO = "<?php echo $mi_foto; ?>";
-    const SOY_HOST = <?php echo $es_host; ?>;
+    let SOY_HOST = <?php echo $es_host; ?>;
 </script>
 
 <script src="../public/js/sala-juego.js"></script>

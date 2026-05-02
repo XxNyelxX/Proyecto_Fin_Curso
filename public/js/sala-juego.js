@@ -86,12 +86,53 @@ function sincronizarMesa() {
             const contadorObj = document.querySelector('.contador-jugadores');
             contadorObj.innerText = `${datos.jugadores.length}/${datos.max_jugadores}`;
             
-            // Si el host se fue y la corona pasó a otro, actualizamos el botón Arrancar
-            const accionesSala = document.querySelector('.acciones-sala');
-            if (MI_ID == datos.id_host && !document.querySelector('.btn-arrancar')) {
-                // Si ahora yo soy el host y antes no lo era, recargo la página 
-                // entera para que PHP me pinte mis botones de poder.
-                window.location.reload();
+            //Compruebo que sean más de 1 jugadores para poder empezar
+            if (SOY_HOST) {
+                const btnArrancar = document.querySelector('.btn-arrancar');
+                const txtEsperando = document.querySelector('.esperando-mini');
+                const btnClon = document.querySelector('.btn-anadir-clon');
+                
+                // Bloqueamos o dejamos acceso a los botones de arrancar y de clones
+                if (btnArrancar) {
+                    if (datos.jugadores.length >= 2) {
+                        btnArrancar.classList.remove('bloqueado');
+                        btnArrancar.classList.add('listo');
+                        btnArrancar.href = `?c=partida&a=Empezar&id=${ID_PARTIDA}`;
+                        
+                        if (txtEsperando) {
+                            txtEsperando.style.display = 'none';
+                        }
+                    } else {
+                        btnArrancar.classList.remove('listo');
+                        btnArrancar.classList.add('bloqueado');
+                        btnArrancar.href = '#';
+                        
+                        if (txtEsperando) {
+                            txtEsperando.style.display = 'block';
+                        }
+                    }
+                }
+
+                if (btnClon) {
+                    if (datos.jugadores.length >= datos.max_jugadores) {
+                        btnClon.classList.add('bloqueado');
+                    } else {
+                        btnClon.classList.remove('bloqueado');
+                    }
+                }
+            }
+
+            // Si el host se fue paso los botones
+            if (MI_ID == datos.id_host && !SOY_HOST) {
+                
+                SOY_HOST = true;
+                
+                // Oculto el texto de invitado y muestro el panel de control
+                const panelInvitado = document.getElementById('panel-invitado');
+                const panelHost = document.getElementById('panel-host');
+                
+                if (panelInvitado) panelInvitado.style.display = 'none';
+                if (panelHost) panelHost.style.display = 'block';
             }
         })
         .catch(error => console.error("Error al sincronizar la mesa:", error));

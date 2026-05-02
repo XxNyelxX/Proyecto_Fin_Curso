@@ -140,11 +140,18 @@ class PartidaModel {
         $stm->execute([$nuevo_host_id, $id_partida]);
     }
 
+    public function IniciarPartida($id_partida) {
+        $sql = "UPDATE partidas SET estado = 'iniciada' WHERE id_partida = ?";
+        $stm = $this->pdo->prepare($sql);
+        $stm->execute([$id_partida]);
+    }
+
     public function FinalizarPartida($id_partida) {
         $sql = "UPDATE partidas SET estado = 'finalizada' WHERE id_partida = ?";
         $stm = $this->pdo->prepare($sql);
         $stm->execute([$id_partida]);
     }
+
 
 }
 ?>
