@@ -199,7 +199,7 @@ a, a:visited, a:active {
     z-index: 10;
     display: flex;
     flex-direction: column;
-    align-items: center; /* Esto fuerza a la imagen a quedarse en el medio */
+    align-items: center;
     justify-content: center;
 }
 
