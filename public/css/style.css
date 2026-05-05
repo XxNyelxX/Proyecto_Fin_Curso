@@ -282,10 +282,34 @@ a, a:visited, a:active {
     display: block;          /* Evita espacios en blanco extraños debajo */
 }
 
-/* Quitamos el brillo (box-shadow) del host */
+/* Si es host se marca */
 .avatar-wrapper.es-host {
     border-color: #ffcc00;
     box-shadow: none; 
+}
+
+/* Cuando el jugador tiene el turno */
+.partida-iniciada .avatar-wrapper.turno-activo {
+    border-color: #4CAF50 !important; 
+    box-shadow: 0 0 15px #4CAF50 !important;
+    transition: all 0.3s ease;
+}
+
+/* Cuando la partida está iniciada, forzamos a que todos los avatares sean blancos y ocultamos el panel del host */
+/* .partida-iniciada .avatar-wrapper {
+    border-color: white !important;
+} */
+
+.partida-iniciada .panel-expulsar {
+    display: none !important;
+}
+
+.partida-iniciada .btn-arrancar {
+    display: none !important;
+}
+
+.partida-iniciada .btn-anadir-clon {
+    display: none !important;
 }
 
 
@@ -307,6 +331,32 @@ a, a:visited, a:active {
 @keyframes olaPuntos {
     0%, 100% { opacity: 0.3; transform: translateY(0); }
     50% { opacity: 1; transform: translateY(-3px); }
+}
+
+/* -- Palabra que escribe el jugador -- */
+.palabra-escrita {
+    color: white;
+    text-shadow: 
+        -1px -1px 0 #000, 
+         1px -1px 0 #000, 
+        -1px  1px 0 #000, 
+         1px  1px 0 #000, 
+         0px  3px 5px rgba(0,0,0,0.8);
+    position: absolute;
+    top: 100%; /* La empuja exactamente debajo del avatar */
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    text-align: center; /* Centra el texto debajo de la foto */
+    margin-top: 8px;
+    font-size: 18px;
+    text-transform: lowercase;
+    z-index: 50;
+    pointer-events: none; /* Evita que las letras bloqueen el clic para expulsar */
+}
+
+.jugador-slot:has(.turno-activo) {
+    z-index: 60;
 }
 
 

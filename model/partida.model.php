@@ -140,10 +140,22 @@ class PartidaModel {
         $stm->execute([$nuevo_host_id, $id_partida]);
     }
 
-    public function IniciarPartida($id_partida) {
-        $sql = "UPDATE partidas SET estado = 'iniciada' WHERE id_partida = ?";
-        $stm = $this->pdo->prepare($sql);
-        $stm->execute([$id_partida]);
+    public function IniciarPartida($id_partida, $silaba_inicial, $vidas_iniciales) {
+        try {
+            // 1. Cambiamos estado, ponemos el turno al 0 (el host) y añadimos la sílaba
+            $sql1 = "UPDATE partidas SET estado = 'iniciada', turno_actual = 0, silaba_actual = ? WHERE id_partida = ?";
+            $stmt1 = $this->pdo->prepare($sql1);
+            $stmt1->execute([$silaba_inicial, $id_partida]);
+
+            // 2. Llenamos los corazones de todos los jugadores de la sala
+            $sql2 = "UPDATE partidas_jugadores SET vidas_restantes = ? WHERE id_partida = ?";
+            $stmt2 = $this->pdo->prepare($sql2);
+            $stmt2->execute([$vidas_iniciales, $id_partida]);
+
+        } catch (Exception $e) {
+            // Si hay error, lo podemos ver en la respuesta del servidor
+            error_log($e->getMessage());
+        }
     }
 
     public function FinalizarPartida($id_partida) {

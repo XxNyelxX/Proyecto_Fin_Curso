@@ -1,9 +1,12 @@
 // Conectamos al servidor WebSocket en el puerto 8080 (usamos la IP local para la máquina virtual)
 const socket = new WebSocket('ws://127.0.0.1:8080');
 
+let palabraActual = "";
+let turnoActivoSlot = null; // Guardará el número de silla (index) donde toca escribir
+let turnoGeneralMesa = null; // Para saber de quién es el turno en la sala
+
 // Cuando la conexión se abre correctamente
 socket.addEventListener('open', function (event) {
-    console.log("%c¡Conectado a la centralita");
     
     // Aquí es donde mandamos nuestro primer paquete estructurado en JSON
     const mensajePresentacion = {
@@ -28,7 +31,6 @@ socket.addEventListener('message', function (event) {
     } else if (datos.tipo === 'expulsion') {
         // Comprobamos si el expulsado soy YO
         if (MI_ID == datos.id_expulsado) {
-            alert("Fuches expulsado da sala polo anfitrión.");
             // Lo mandamos a la pantalla de inicio por la fuerza
             window.location.href = "?c=inicio&a=Index"; 
         } else {
@@ -37,6 +39,14 @@ socket.addEventListener('message', function (event) {
         }
     } else if (datos.tipo === 'bienvenida') {
         console.log(datos.mensaje);
+    } else if (datos.tipo === 'tecleando') {
+        palabraActual = datos.palabra; // Guardamos la palabra que nos llega
+        
+        // Pintamos las letras al instante en el HTML del jugador que escribe
+        const divPalabra = document.getElementById(`palabra-slot-${datos.slot}`);
+        if (divPalabra) {
+            divPalabra.innerText = palabraActual;
+        }
     }
 });
 
@@ -49,15 +59,27 @@ function sincronizarMesa() {
             const contenedor = document.querySelector('.circulo-jugadores');
             contenedor.innerHTML = ''; // Limpiamos la mesa por completo
 
+            let tieneTurno = null;
+
             // Sentamos a los jugadores uno por uno según la Base de Datos
             datos.jugadores.forEach((jugador, index) => {
-                const esHost = (jugador.id_usuario == datos.id_host) ? 'es-host' : '';
+                const esHost = (jugador.id_usuario == datos.id_host && datos.estado === 'esperando') ? 'es-host' : '';
+
+                // Si la partida está iniciada y su silla coincide con el turno actual, le damos el verde
+                const esTurno = (datos.estado === 'iniciada' && index == datos.turno_actual) ? 'turno-activo' : '';
+
+                // Si el turno actual cae en mi
+                if (esTurno && jugador.id_usuario == MI_ID) {
+                    tieneTurno = index;
+                }
+
+                let textoEscrito = (esTurno === 'turno-activo') ? palabraActual : "";
 
                 // Preparamos el panel de expulsión vacío por defecto
                 let panelExpulsar = '';
 
                 // Si YO soy el Host de la sala, y este jugador NO tiene mi ID
-                if (MI_ID == datos.id_host && jugador.id_usuario != MI_ID) {
+                if (MI_ID == datos.id_host && jugador.id_usuario != MI_ID && datos.estado === 'esperando') {
                     panelExpulsar = `
                         <div class="panel-expulsar">
                             <span class="texto-expulsar">Botar a ${jugador.username}?</span>
@@ -72,19 +94,54 @@ function sincronizarMesa() {
                         <span class="nombre-jugador">${jugador.username}</span>
                         
                         <div class="contenedor-avatar-panel">
-                            <div class="avatar-wrapper ${esHost}" onclick="togglePanel(this)">
+                            <div class="avatar-wrapper ${esHost} ${esTurno}" onclick="togglePanel(this)">
                                 <img src="img/avatars/${jugador.foto}" alt="Avatar">
                             </div>
                             ${panelExpulsar}
+                            <div class="palabra-escrita" id="palabra-slot-${index}">${textoEscrito}</div>
                         </div>
                         
                     </div>
                 `;
             });
 
-            // Actualizamos el contador central con la cantidad real
-            const contadorObj = document.querySelector('.contador-jugadores');
-            contadorObj.innerText = `${datos.jugadores.length}/${datos.max_jugadores}`;
+            turnoActivoSlot = tieneTurno;
+
+            // Si el turno del servidor es distinto al que teníamos guardado, limpiamos la palabra
+            if (turnoGeneralMesa !== datos.turno_actual) {
+                palabraActual = "";
+                turnoGeneralMesa = datos.turno_actual;
+            }
+
+            // --- INICIO GESTIÓN VISUAL DE LA MESA ---
+            const textoBomba = document.querySelector('.contador-jugadores');
+            const mesaJuego = document.querySelector('.mesa-juego');
+
+            if (datos.estado === 'iniciada') {
+                // Añadimos la clase para que CSS haga desaparecer los botones
+                if (mesaJuego){ mesaJuego.classList.add('partida-iniciada');}
+                
+                // Ocultamos el bloque general de acciones por seguridad extra
+                const accionesSala = document.querySelector('.acciones-sala');
+                if (accionesSala){ accionesSala.style.display = 'none';}
+
+                // Quitamos el cursor de click a los avatares
+                document.querySelectorAll('.avatar-wrapper').forEach(avatar => avatar.style.cursor = 'default');
+
+                // Cambiamos los números por la sílaba gigante
+                if (textoBomba) {
+                    textoBomba.innerText = datos.silaba_actual;
+                    textoBomba.style.fontSize = "32px";
+                    textoBomba.style.fontWeight = "bold";
+                }
+            } else if (datos.estado !== 'finalizada'){
+                // Modo sala de espera normal
+                if (textoBomba) {
+                    textoBomba.innerText = `${datos.jugadores.length}/${datos.max_jugadores}`;
+                    textoBomba.style.fontSize = ""; 
+                    textoBomba.style.fontWeight = "";
+                }
+            }
             
             //Compruebo que sean más de 1 jugadores para poder empezar
             if (SOY_HOST) {
@@ -97,7 +154,7 @@ function sincronizarMesa() {
                     if (datos.jugadores.length >= 2) {
                         btnArrancar.classList.remove('bloqueado');
                         btnArrancar.classList.add('listo');
-                        btnArrancar.href = `?c=partida&a=Empezar&id=${ID_PARTIDA}`;
+                        btnArrancar.href = '#';
                         
                         if (txtEsperando) {
                             txtEsperando.style.display = 'none';
@@ -233,12 +290,74 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-// Si la pestaña se cierra o se recarga por cualquier motivo, disparamos el abandono
+// Si la pestaña se cierra o se recarga por cualquier motivo, abandonamos la sala
 window.addEventListener('beforeunload', function () {
     navigator.sendBeacon(`?c=partida&a=Abandonar&id=${ID_PARTIDA}`);
+});
+
+document.addEventListener('click', function(e) {
+    // Si hacemos clic en el botón de arrancar
+    const btnArrancar = e.target.closest('.btn-arrancar');
+    
+    if (btnArrancar) {
+        e.preventDefault(); // Evitamos que el '#' mueva la pantalla hacia arriba
+        
+        // Si el botón está bloqueado porque no hay suficientes jugadores, no hacemos nada
+        if (btnArrancar.classList.contains('bloqueado')) return;
+
+        // Hacemos la petición
+        fetch(`?c=partida&a=Empezar&id=${ID_PARTIDA}`)
+            .then(respuesta => respuesta.json())
+            .then(datos => {
+                if (datos.status === 'expulsar') {
+                    // Si PHP nos dice que nos vayamos, nos vamos al inicio
+                    window.location.href = 'index.php';
+                } else if (datos.status === 'ok') {
+                    // Si todo fue bien, forzamos una lectura de la mesa.
+                    // SincronizarMesa() leerá el estado 'iniciada' y ocultará todo.
+                    sincronizarMesa();
+                }
+            })
+            .catch(error => console.error("Error ao arrincar a partida:", error));
+    }
+});
+
+// --- LÓGICA DE ESCRITURA ---
+
+document.addEventListener('keydown', function(e) {
+    console.log("Tecla:", e.key, "| TurnoSlot:", turnoActivoSlot, "| Palabra:", palabraActual);
+    // Si no es mi turno, ignoramos el teclado por completo
+    if (turnoActivoSlot === null) return;
+
+    // Si pulsa Retroceso (Borrar)
+    if (e.key === "Backspace") {
+        palabraActual = palabraActual.slice(0, -1);
+    }
+    // Si pulsa una letra (de la A a la Z, o la Ñ)
+    else if (/^[a-zA-ZñÑ]$/.test(e.key)) {
+        if (palabraActual.length < 50) {
+            palabraActual += e.key.toLowerCase();
+        }
+    }
+
+    // Inyectamos la letra instantáneamente en el HTML del jugador activo sin esperar al Fetch
+    const divPalabra = document.getElementById(`palabra-slot-${turnoActivoSlot}`);
+    if (divPalabra) {
+        divPalabra.innerText = palabraActual;
+    }
+
+    socket.send(JSON.stringify({
+        tipo: 'tecleando',
+        palabra: palabraActual,
+        slot: turnoActivoSlot,
+        id_partida: ID_PARTIDA
+    }));
 });
 
 // Por si la terminal está apagada
 socket.addEventListener('error', function (event) {
     console.error("No se pudo conectar.");
 });
+
+
+setInterval(sincronizarMesa, 1000);

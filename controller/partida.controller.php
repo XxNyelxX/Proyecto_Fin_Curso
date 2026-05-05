@@ -109,7 +109,7 @@ class PartidaController {
         $id_partida = (int)$_GET['id'];
         $partida = $this->modelo->ObtenerPartidaPorId($id_partida);
 
-        if (!$partida) {
+        if (!$partida || $partida['estado'] === 'finalizada') {
             header("Location: index.php");
             exit();
         }
@@ -287,6 +287,9 @@ class PartidaController {
             'id_host' => $partida['id_host'],
             'max_jugadores' => $partida['max_jugadores'],
             'vidas' => $partida['vidas'],
+            'estado' => $partida['estado'],
+            'turno_actual' => $partida['turno_actual'],
+            'silaba_actual' => $partida['silaba_actual'],
             'jugadores' => $jugadores
         ]);
     }
@@ -313,6 +316,36 @@ class PartidaController {
         $this->modelo->SalirDePartida($id_partida, $id_expulsado);
 
         echo json_encode(['status' => 'ok']);
+    }
+
+    public function Empezar() {
+        //Le dice al navegador que vamos a enviar json y no una web
+        header('Content-Type: application/json');
+
+        if (!isset($_SESSION['user_id']) || !isset($_GET['id'])) {
+            echo json_encode(['status' => 'expulsar']);
+            return;
+        }
+
+        $id_partida = (int)$_GET['id'];
+        $partida = $this->modelo->ObtenerPartidaPorId($id_partida);
+
+        // Solo el Host arranca la partida y solo si está en "espera"
+        if ($partida && $partida['id_host'] == $_SESSION['user_id'] && $partida['estado'] === 'esperando') {
+            
+            // Generamos una sílaba aleatoria básica para empezar el juego
+            $silabas = ['PA', 'MA', 'TE', 'RO', 'LA', 'DO', 'SA', 'MI'];
+            $silaba_inicial = $silabas[array_rand($silabas)];
+
+            // Llamamos a la función que creaste en el modelo
+            $this->modelo->IniciarPartida($id_partida, $silaba_inicial, $partida['vidas']);
+            
+            // Volvemos a la sala (que ahora estará en modo "iniciada")
+            echo json_encode(['status' => 'ok']);
+            return;
+        } else {
+            echo json_encode(['status' => 'ignorar']);
+        }
     }
 
 }

@@ -83,6 +83,22 @@ class Chat implements MessageComponentInterface {
                         }
                     }
                     break;
+
+                    case 'tecleando':
+                    // Empaquetamos lo que está escribiendo el jugador
+                    $aviso_teclado = [
+                        'tipo' => 'tecleando',
+                        'palabra' => $datos['palabra'],
+                        'slot' => $datos['slot']
+                    ];
+                    
+                    // Repartimos las letras a todos los que estén en la MISMA partida, excepto al que las escribió
+                    foreach ($this->players as $player) {
+                        if (isset($player->id_partida) && $player->id_partida == $datos['id_partida'] && $player !== $from) {
+                            $player->send(json_encode($aviso_teclado));
+                        }
+                    }
+                    break;
                     
                 // Aquí iremos añadiendo más 'case' (escribir_letra, arrancar_juego, etc.)
             }

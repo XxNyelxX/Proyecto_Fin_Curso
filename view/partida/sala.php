@@ -55,8 +55,7 @@
                 Agardando xogadores<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
             </p>
             
-            <a href="<?php echo ($listo) ? '?c=partida&a=Empezar&id='.$partida['id_partida'] : '#'; ?>" 
-                class="<?php echo $claseBoton; ?>">
+            <a href="#" class="<?php echo $claseBoton; ?>">
                 ARRINCAR PARTIDA
             </a>
         </div>
