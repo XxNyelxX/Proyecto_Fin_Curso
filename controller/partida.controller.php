@@ -348,5 +348,45 @@ class PartidaController {
         }
     }
 
+    public function ValidarPalabra() {
+        // Obligamos a PHP a devolver JSON
+        header('Content-Type: application/json');
+
+        if (isset($_REQUEST['palabra'])) {
+            $palabra_usuario = mb_strtolower(trim($_REQUEST['palabra']), 'UTF-8');
+            
+            // Quitamos tildes por si acaso
+            $sustituciones = ['á'=>'a', 'é'=>'e', 'í'=>'i', 'ó'=>'o', 'ú'=>'u', 'ï'=>'i', 'ü'=>'u'];
+            $palabra_usuario = strtr($palabra_usuario, $sustituciones);
+
+            $existe = false;
+            $ruta_diccionario = __DIR__ . '/../data/diccionario.json';
+
+            if (file_exists($ruta_diccionario)) {
+                // Leemos el diccionario
+                $json_data = file_get_contents($ruta_diccionario);
+                $lista_palabras = json_encode(json_decode($json_data), true); 
+                
+                // Para hacerlo más rápido
+                // primero decodificamos el JSON a un array de PHP.
+                $array_palabras = json_decode($json_data, true);
+
+                // Comprobamos si la palabra existe en el array
+                if (is_array($array_palabras) && in_array($palabra_usuario, $array_palabras)) {
+                    $existe = true;
+                }
+            }
+
+            echo json_encode([
+                'status' => 'ok',
+                'palabra' => $palabra_usuario,
+                'existe' => $existe
+            ]);
+        } else {
+            echo json_encode(['status' => 'error', 'mensaje' => 'No hay palabra']);
+        }
+        exit;
+    }
+
 }
 ?>

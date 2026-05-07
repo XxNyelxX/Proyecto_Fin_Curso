@@ -357,13 +357,9 @@ a, a:visited, a:active {
 
 /* -- Palabra Correcta -- */
 .palabra-escrita.correcta {
-    color: #00ff00 !important;
+    color: #ffffff8e !important;
 }
 
-/* -- Palabra Incorrecta -- */
-.palabra-escrita.incorrecta {
-    color: #ff0000 !important;
-}
 
 .jugador-slot:has(.turno-activo) {
     z-index: 60;

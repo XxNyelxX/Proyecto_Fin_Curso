@@ -4,6 +4,8 @@ const socket = new WebSocket('ws://127.0.0.1:8080');
 let palabraActual = "";
 let turnoActivoSlot = null; // Guardará el número de silla (index) donde toca escribir
 let turnoGeneralMesa = null; // Para saber de quién es el turno en la sala
+let estadoClasePalabra = '';
+let heAcertado = false;
 
 // Cuando la conexión se abre correctamente
 socket.addEventListener('open', function (event) {
@@ -48,6 +50,7 @@ socket.addEventListener('message', function (event) {
             divPalabra.innerText = palabraActual;
         }
     }
+
 });
 
 function sincronizarMesa() {
@@ -191,8 +194,17 @@ function sincronizarMesa() {
                 if (panelInvitado) panelInvitado.style.display = 'none';
                 if (panelHost) panelHost.style.display = 'block';
             }
+
+            if (heAcertado) {
+            const divPalabra = document.getElementById(`palabra-slot-${turnoActivoSlot}`);
+            if (divPalabra) {
+                divPalabra.classList.add('correcta');
+            }
+        }
+
         })
         .catch(error => console.error("Error al sincronizar la mesa:", error));
+
 }
 
 // Función para abrir/cerrar la cortina de expulsar al hacer clic en la foto
@@ -325,6 +337,7 @@ document.addEventListener('click', function(e) {
 // --- LÓGICA DE ESCRITURA ---
 
 document.addEventListener('keydown', function(e) {
+
     // Si no es mi turno, ignoramos el teclado por completo
     if (turnoActivoSlot === null) return;
 
@@ -340,16 +353,9 @@ document.addEventListener('keydown', function(e) {
         
         // Verificamos si la sílaba está dentro de lo que hemos escrito
         if (palabraActual.includes(silabaBomba)) {
-            if (divPalabra) {
-                divPalabra.classList.add('correcta');
-                divPalabra.classList.remove('incorrecta');
-            }
+            validarPalabra(palabraActual, divPalabra);
         } else {
-            // Si no la tiene, nos aseguramos de quitarle el verde por si acaso
-            if (divPalabra){
-                divPalabra.classList.remove('correcta');
-                divPalabra.classList.add('incorrecta');
-            } 
+            
         }
         
         return; // Cortamos aquí para que no ejecute lo de enviar letras a los demás
@@ -373,6 +379,31 @@ document.addEventListener('keydown', function(e) {
         id_partida: ID_PARTIDA
     }));
 });
+
+// Función para comprobar si la palabra existe en nuestro JSON local
+function validarPalabra(palabra, divPalabra) {
+    fetch(`?c=partida&a=ValidarPalabra&palabra=${palabra}&id_partida=${ID_PARTIDA}`)
+        .then(respuesta => respuesta.json())
+        .then(datos => {
+            if (datos.existe) {
+                console.log("✅ Palabra válida:", datos.palabra);
+
+                heAcertado = true;
+                
+                // Si existe el div
+                if (divPalabra) {
+                    divPalabra.classList.add('correcta');
+                }
+                
+                // Aquí mañana meteremos el código para guardar en la BD y saltar el turno
+                
+            } else {
+                console.log("❌ La palabra no existe en el diccionario");
+            }
+        })
+        .catch(error => console.error("Error en la validación:", error));
+}
+
 
 // Por si la terminal está apagada
 socket.addEventListener('error', function (event) {
