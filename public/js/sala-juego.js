@@ -325,16 +325,36 @@ document.addEventListener('click', function(e) {
 // --- LÓGICA DE ESCRITURA ---
 
 document.addEventListener('keydown', function(e) {
-    console.log("Tecla:", e.key, "| TurnoSlot:", turnoActivoSlot, "| Palabra:", palabraActual);
     // Si no es mi turno, ignoramos el teclado por completo
     if (turnoActivoSlot === null) return;
 
-    // Si pulsa Retroceso (Borrar)
+    // Si pulsa Retroceso borramos la última letra
     if (e.key === "Backspace") {
         palabraActual = palabraActual.slice(0, -1);
-    }
+    
+    // --- Si pulsa Enter comprobamos la sílaba ---
+    } else if (e.key === "Enter") {
+        // Leemos la sílaba que está escrita en la pantalla
+        const silabaBomba = document.querySelector('.contador-jugadores').innerText.toLowerCase();
+        const divPalabra = document.getElementById(`palabra-slot-${turnoActivoSlot}`);
+        
+        // Verificamos si la sílaba está dentro de lo que hemos escrito
+        if (palabraActual.includes(silabaBomba)) {
+            if (divPalabra) {
+                divPalabra.classList.add('correcta');
+                divPalabra.classList.remove('incorrecta');
+            }
+        } else {
+            // Si no la tiene, nos aseguramos de quitarle el verde por si acaso
+            if (divPalabra){
+                divPalabra.classList.remove('correcta');
+                divPalabra.classList.add('incorrecta');
+            } 
+        }
+        
+        return; // Cortamos aquí para que no ejecute lo de enviar letras a los demás
     // Si pulsa una letra (de la A a la Z, o la Ñ)
-    else if (/^[a-zA-ZñÑ]$/.test(e.key)) {
+    } else if (/^[a-zA-ZñÑ]$/.test(e.key)) {
         if (palabraActual.length < 50) {
             palabraActual += e.key.toLowerCase();
         }
