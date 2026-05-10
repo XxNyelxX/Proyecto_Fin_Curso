@@ -99,6 +99,35 @@ class Chat implements MessageComponentInterface {
                         }
                     }
                     break;
+
+                    case 'palabra_acertada':
+                    $aviso_acierto = [
+                        'tipo' => 'palabra_acertada',
+                        'palabra' => $datos['palabra'],
+                        'slot' => $datos['slot']
+                    ];
+                    
+                    // Repartimos el aviso a todos los de la sala, excepto al que acertó
+                    foreach ($this->players as $player) {
+                        if (isset($player->id_partida) && $player->id_partida == $datos['id_partida'] && $player !== $from) {
+                            $player->send(json_encode($aviso_acierto));
+                        }
+                    }
+                    break;
+
+                    case 'palabra_fallada':
+                    $aviso_fallo = [
+                        'tipo' => 'palabra_fallada',
+                        'slot' => $datos['slot']
+                    ];
+                    
+                    // Repartimos el aviso a todos los de la sala, excepto al que falló
+                    foreach ($this->players as $player) {
+                        if (isset($player->id_partida) && $player->id_partida == $datos['id_partida'] && $player !== $from) {
+                            $player->send(json_encode($aviso_fallo));
+                        }
+                    }
+                    break;
                     
                 // Aquí iremos añadiendo más 'case' (escribir_letra, arrancar_juego, etc.)
             }

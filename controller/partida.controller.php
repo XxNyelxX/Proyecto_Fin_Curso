@@ -333,9 +333,7 @@ class PartidaController {
         // Solo el Host arranca la partida y solo si está en "espera"
         if ($partida && $partida['id_host'] == $_SESSION['user_id'] && $partida['estado'] === 'esperando') {
             
-            // Generamos una sílaba aleatoria básica para empezar el juego
-            $silabas = ['PA', 'MA', 'TE', 'RO', 'LA', 'DO', 'SA', 'MI'];
-            $silaba_inicial = $silabas[array_rand($silabas)];
+            $silaba_inicial = $this->GenerarSilabaAleatoria();
 
             // Llamamos a la función que creaste en el modelo
             $this->modelo->IniciarPartida($id_partida, $silaba_inicial, $partida['vidas']);
@@ -348,12 +346,22 @@ class PartidaController {
         }
     }
 
+    private function GenerarSilabaAleatoria() {
+        $silabas = [
+            'PA', 'MA', 'TE', 'RO', 'LA', 'DO', 'SA', 'MI',
+            'CA', 'LI', 'PO', 'TU', 'RE', 'FI', 'SO', 'NU',
+            'BE', 'TO', 'CU', 'VI', 'BA', 'DI', 'FA', 'PI'
+        ];
+        return $silabas[array_rand($silabas)];
+    }
+
     public function ValidarPalabra() {
         // Obligamos a PHP a devolver JSON
         header('Content-Type: application/json');
 
-        if (isset($_REQUEST['palabra'])) {
+        if (isset($_GET['palabra']) && isset($_GET['id_partida'])) {
             $palabra_usuario = mb_strtolower(trim($_REQUEST['palabra']), 'UTF-8');
+            $id_partida = (int)$_GET['id_partida'];
             
             // Quitamos tildes por si acaso
             $sustituciones = ['á'=>'a', 'é'=>'e', 'í'=>'i', 'ó'=>'o', 'ú'=>'u', 'ï'=>'i', 'ü'=>'u'];
@@ -365,7 +373,6 @@ class PartidaController {
             if (file_exists($ruta_diccionario)) {
                 // Leemos el diccionario
                 $json_data = file_get_contents($ruta_diccionario);
-                $lista_palabras = json_encode(json_decode($json_data), true); 
                 
                 // Para hacerlo más rápido
                 // primero decodificamos el JSON a un array de PHP.
@@ -374,6 +381,34 @@ class PartidaController {
                 // Comprobamos si la palabra existe en el array
                 if (is_array($array_palabras) && in_array($palabra_usuario, $array_palabras)) {
                     $existe = true;
+
+                    // Obtenemos los datos actuales de la partida
+                    $partida = $this->modelo->ObtenerPartidaPorId($id_partida);
+                    
+                    // Obtenemos los jugadores para saber cuántos son
+                    $jugadores = $this->modelo->ObtenerJugadoresEnPartida($id_partida);
+                    $total_jugadores = count($jugadores);
+                    
+                    if ($partida && $total_jugadores > 0) {
+
+                        // Guardamos el registro de la jugada en la tabla partidas_jugadas
+                        // Usamos la sílaba que estaba activa ANTES del cambio
+                        $this->modelo->GuardarJugada(
+                            $id_partida, 
+                            $_SESSION['user_id'], 
+                            $partida['silaba_actual'], 
+                            $palabra_usuario, 
+                            0
+                        );
+                        // Calculamos el siguiente turno
+                        $siguiente_turno = ($partida['turno_actual'] + 1) % $total_jugadores;
+                        
+                        // Generamos la nueva sílaba
+                        $nueva_silaba = $this->GenerarSilabaAleatoria();
+                        
+                        // Guardamos en la BD
+                        $this->modelo->AvanzarTurno($id_partida, $siguiente_turno, $nueva_silaba);
+                    }
                 }
             }
 

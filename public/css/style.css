@@ -365,6 +365,19 @@ a, a:visited, a:active {
     z-index: 60;
 }
 
+/* -- Palabra Fallada -- */
+.palabra-escrita.fallo {
+    animation: vibracionFallo 0.4s ease-in-out;
+}
+
+@keyframes vibracionFallo {
+    0%, 100% { transform: translateX(-50%); }
+    20% { transform: translateX(calc(-50% - 6px)); }
+    40% { transform: translateX(calc(-50% + 6px)); }
+    60% { transform: translateX(calc(-50% - 6px)); }
+    80% { transform: translateX(calc(-50% + 6px)); }
+}
+
 
 /* ====== TEXTOS Y ANIMACIONES ====== */
 
@@ -692,6 +705,20 @@ input[type="radio"]:checked + .btn-vidas {
     height: 18px;
     display: block;
     fill: currentColor;
+}
+
+
+/* -- Animación bomba -- */
+
+/* - Cuando la partida inicia, la bomba respira - */
+.partida-iniciada .bomba-central img {
+    animation: respiracionBomba 2s ease-in-out infinite;
+}
+
+/* - Animación respiración de la bomba - */
+@keyframes respiracionBomba {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(0.85); } /* Se encoge al 85% de su tamaño visualmente */
 }
 
 

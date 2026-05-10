@@ -6,6 +6,7 @@ let turnoActivoSlot = null; // Guardará el número de silla (index) donde toca 
 let turnoGeneralMesa = null; // Para saber de quién es el turno en la sala
 let estadoClasePalabra = '';
 let heAcertado = false;
+let palabrasCongeladas = {};
 
 // Cuando la conexión se abre correctamente
 socket.addEventListener('open', function (event) {
@@ -49,6 +50,28 @@ socket.addEventListener('message', function (event) {
         if (divPalabra) {
             divPalabra.innerText = palabraActual;
         }
+    } else if (datos.tipo === 'palabra_acertada') {
+        // Guardamos la palabra en la memoria de los ESPECTADORES
+        palabrasCongeladas[datos.slot] = datos.palabra;
+
+        // Se la pintamos en gris instantáneamente sin esperar al setInterval
+        const divPalabra = document.getElementById(`palabra-slot-${datos.slot}`);
+        if (divPalabra) {
+            divPalabra.innerText = datos.palabra;
+            divPalabra.classList.add('correcta');
+        }
+    } else if (datos.tipo === 'palabra_fallada') {
+        // Encontramos la silla del que ha fallado
+        const divPalabra = document.getElementById(`palabra-slot-${datos.slot}`);
+        if (divPalabra) {
+            // Le ponemos la clase de temblor
+            divPalabra.classList.add('fallo');
+            
+            // Se la quitamos a los 400ms para que pueda volver a temblar si vuelve a fallar
+            setTimeout(() => {
+                divPalabra.classList.remove('fallo');
+            }, 400);
+        }
     }
 
 });
@@ -64,6 +87,17 @@ function sincronizarMesa() {
 
             let tieneTurno = null;
 
+            // Si el turno del servidor es distinto al que teníamos guardado, limpiamos la palabra
+            if (turnoGeneralMesa !== datos.turno_actual) {
+                palabraActual = "";
+                heAcertado = false;
+                turnoGeneralMesa = datos.turno_actual;
+
+                // Borramos la palabra congelada de la silla a la que le toca AHORA
+                // para que empiece en blanco su nuevo turno.
+                delete palabrasCongeladas[datos.turno_actual];
+            }
+
             // Sentamos a los jugadores uno por uno según la Base de Datos
             datos.jugadores.forEach((jugador, index) => {
                 const esHost = (jugador.id_usuario == datos.id_host && datos.estado === 'esperando') ? 'es-host' : '';
@@ -76,7 +110,21 @@ function sincronizarMesa() {
                     tieneTurno = index;
                 }
 
-                let textoEscrito = (esTurno === 'turno-activo') ? palabraActual : "";
+                // Averiguamos qué texto mostrar y con qué clase
+                let textoMostrar = "";
+                let claseAcertada = "";
+
+                if (esTurno === 'turno-activo') {
+                    // Si es su turno, muestra lo que está tecleando
+                    textoMostrar = palabraActual;
+                    // Si soy yo y acabo de acertar, mantengo el gris para evitar parpadeos 
+                    // mientras el servidor procesa el cambio de turno
+                    claseAcertada = (heAcertado && jugador.id_usuario == MI_ID) ? "correcta" : "";
+                } else if (palabrasCongeladas[index]) {
+                    // Si no es su turno pero tiene una palabra congelada, la mostramos en gris
+                    textoMostrar = palabrasCongeladas[index];
+                    claseAcertada = "correcta";
+                }
 
                 // Preparamos el panel de expulsión vacío por defecto
                 let panelExpulsar = '';
@@ -101,20 +149,13 @@ function sincronizarMesa() {
                                 <img src="img/avatars/${jugador.foto}" alt="Avatar">
                             </div>
                             ${panelExpulsar}
-                            <div class="palabra-escrita" id="palabra-slot-${index}">${textoEscrito}</div>
+                            <div class="palabra-escrita ${claseAcertada}" id="palabra-slot-${index}">${textoMostrar}</div>
                         </div>
-                        
                     </div>
                 `;
             });
 
             turnoActivoSlot = tieneTurno;
-
-            // Si el turno del servidor es distinto al que teníamos guardado, limpiamos la palabra
-            if (turnoGeneralMesa !== datos.turno_actual) {
-                palabraActual = "";
-                turnoGeneralMesa = datos.turno_actual;
-            }
 
             // --- INICIO GESTIÓN VISUAL DE LA MESA ---
             const textoBomba = document.querySelector('.contador-jugadores');
@@ -195,12 +236,6 @@ function sincronizarMesa() {
                 if (panelHost) panelHost.style.display = 'block';
             }
 
-            if (heAcertado) {
-            const divPalabra = document.getElementById(`palabra-slot-${turnoActivoSlot}`);
-            if (divPalabra) {
-                divPalabra.classList.add('correcta');
-            }
-        }
 
         })
         .catch(error => console.error("Error al sincronizar la mesa:", error));
@@ -382,23 +417,51 @@ document.addEventListener('keydown', function(e) {
 
 // Función para comprobar si la palabra existe en nuestro JSON local
 function validarPalabra(palabra, divPalabra) {
+    // Guardamos de quién era el turno en este exacto milisegundo
+    const slotJugado = turnoActivoSlot;
+
     fetch(`?c=partida&a=ValidarPalabra&palabra=${palabra}&id_partida=${ID_PARTIDA}`)
         .then(respuesta => respuesta.json())
         .then(datos => {
             if (datos.existe) {
-                console.log("✅ Palabra válida:", datos.palabra);
 
                 heAcertado = true;
+                palabrasCongeladas[slotJugado] = palabra;
                 
                 // Si existe el div
                 if (divPalabra) {
+                    divPalabra.classList.remove('fallo');
                     divPalabra.classList.add('correcta');
                 }
+
+                // Le decimos a los demás que congelen esta palabra
+                socket.send(JSON.stringify({
+                    tipo: 'palabra_acertada',
+                    slot: slotJugado,
+                    palabra: palabra,
+                    id_partida: ID_PARTIDA
+                }));
                 
                 // Aquí mañana meteremos el código para guardar en la BD y saltar el turno
                 
-            } else {
-                console.log("❌ La palabra no existe en el diccionario");
+            }else {
+                // -- ANIMACIÓN DE FALLO --
+                    
+                if (divPalabra) {
+                    // Le volvemos a poner la clase para que inicie la animación desde cero
+                    divPalabra.classList.add('fallo');
+                        
+                    // Se la quitamos pasados 400ms (lo que dura la animación en CSS)
+                    setTimeout(() => {
+                        divPalabra.classList.remove('fallo');
+                    }, 400);
+                }
+                // Le decimos a los demás que hagan temblar esta silla
+                socket.send(JSON.stringify({
+                    tipo: 'palabra_fallada',
+                    slot: slotJugado,
+                    id_partida: ID_PARTIDA
+                }));
             }
         })
         .catch(error => console.error("Error en la validación:", error));

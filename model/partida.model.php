@@ -164,6 +164,27 @@ class PartidaModel {
         $stm->execute([$id_partida]);
     }
 
+    public function AvanzarTurno($id_partida, $siguiente_turno, $nueva_silaba) {
+        try {
+            $sql = "UPDATE partidas SET turno_actual = ?, silaba_actual = ? WHERE id_partida = ?";
+            $stm = $this->pdo->prepare($sql);
+            $stm->execute([$siguiente_turno, $nueva_silaba, $id_partida]);
+        } catch (Exception $e) {
+            error_log("Error al avanzar turno: " . $e->getMessage());
+        }
+    }
+
+    public function GuardarJugada($id_partida, $id_usuario, $silaba, $palabra_acertada, $puntos_ganados) {
+        try {
+            $sql = "INSERT INTO partidas_jugadas (id_partida, id_usuario, silaba, palabra_acertada, puntos_ganados) 
+                    VALUES (?, ?, ?, ?, ?)";
+            $stm = $this->pdo->prepare($sql);
+            $stm->execute([$id_partida, $id_usuario, $silaba, $palabra_acertada, $puntos_ganados]);
+        } catch (Exception $e) {
+            error_log("Error al guardar la jugada: " . $e->getMessage());
+        }
+    }
+
 
 }
 ?>
