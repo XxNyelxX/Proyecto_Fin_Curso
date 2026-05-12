@@ -510,5 +510,14 @@ class PartidaController {
         exit;
     }
 
+    public function Unirse() {
+        // Pedimos al modelo todas las partidas con estado 'esperando'
+        $partidas = $this->modelo->ListarPartidasAbiertas();
+
+        require_once '../view/header.php';
+        require_once '../view/partida/unirse.php';
+        require_once '../view/footer.php';
+    }
+
 }
 ?>

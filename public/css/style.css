@@ -1358,3 +1358,211 @@ body.modo-estatico .btn-arrancar.listo:active {
     transform: translate(2px, 2px); 
     box-shadow: 0px 0px 0px #000;
 }
+
+
+
+
+
+/* Contenedor principal */
+.contenedor-unirse {
+    width: 90%;
+    max-width: 1000px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+/* Cabecera de la lista */
+.cabecera-lista-partidas {
+    display: flex;
+    /* Izquierda: 10px (caja) + 2px (borde) + 25px (tarjeta) = 37px
+       Derecha: 37px + 8px (scrollbar) = 45px */
+    padding: 10px 45px 10px 37px; 
+    box-sizing: border-box; 
+    width: 100%; 
+    color: #aaa;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+/* Tarjeta de cada partida */
+.tarjeta-partida {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid #333;
+    padding: 20px 25px;
+    margin-bottom: 15px; 
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.tarjeta-partida:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #00d4ff; 
+}
+
+.tarjeta-partida.llena:hover {
+    border-color: #ff003c; /* Rojo si la partida está llena */
+}
+
+/* Columnas para alinear todo */
+.col-nombre    { flex: 2; text-align: left; }
+.col-jugadores { flex: 1; }
+.col-bomba     { flex: 1; }
+.col-vidas     { flex: 1; }
+.col-accion    { flex: 1.5; display: flex; gap: 10px; justify-content: flex-end; }
+
+/* Estilo de los textos SIN negrita */
+.nombre-sala {
+    font-size: 1.4rem;
+    color: #fff;
+}
+
+.dato-partida {
+    font-size: 1.2rem;
+    color: #eee;
+}
+
+/* Botones más grandes y SIN negrita */
+.btn-unirse-accion, .btn-unirse-bloqueado, .btn-espectar-accion {
+    padding: 14px 24px; 
+    font-size: 1.3rem; 
+    text-decoration: none;
+    border-radius: 4px;
+    min-width: 120px;
+    text-align: center;
+    display: inline-block; /* Necesario para que el transform funcione perfectamente */
+    transition: transform 0.2s ease, background-color 0.2s ease; /* Prepara la animación */
+}
+
+/* Animación hover: El botón crece un 10% */
+.btn-unirse-accion:hover, .btn-espectar-accion:hover {
+    transform: scale(1.1);
+}
+
+/* El botón bloqueado no crece al pasar el ratón */
+.btn-unirse-bloqueado:hover {
+    transform: none;
+}
+
+.btn-unirse-accion {
+    background: #00a85a;
+    color: #000;
+}
+
+.btn-unirse-bloqueado {
+    background: #444;
+    color: #888;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.btn-espectar-accion {
+    background: #00d4ff;
+    color: #000;
+}
+
+/* Botones base (jugador normal) */
+.btn-unirse-accion, .btn-unirse-bloqueado, .btn-espectar-accion {
+    padding: 10px 20px; 
+    font-size: 1.1rem; 
+    text-decoration: none;
+    border-radius: 4px;
+    min-width: 100px;
+    text-align: center;
+    display: inline-block; 
+    transition: transform 0.2s ease, background-color 0.2s ease; 
+}
+
+/* Modificador de tamaño para los Admins */
+.btn-admin-size {
+    padding: 8px 14px !important; 
+    font-size: 0.95rem !important; 
+    min-width: 80px !important;
+}
+
+.btn-unirse-accion:hover, .btn-espectar-accion:hover {
+    transform: scale(1.1);
+}
+
+.btn-unirse-bloqueado:hover {
+    transform: none;
+}
+
+.btn-unirse-accion {
+    background: #00a85a;
+    color: #000;
+}
+
+.btn-unirse-bloqueado {
+    background: #444;
+    color: #888;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.btn-espectar-accion {
+    background: #00d4ff;
+    color: #000;
+}
+
+.btn-espectar-accion:active, .btn-espectar-accion:visited {
+    color: #000;
+}
+
+.lista-partidas-scroll {
+    width: 100%; /* <-- Esto arregla el descuadre */
+    height: 60vh;
+    background-color: transparent; 
+    border: none;
+    box-shadow: none;
+    padding: 10px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* - Scrollbar minimalista semitransparente - */
+.lista-partidas-scroll::-webkit-scrollbar {
+    width: 8px;
+}
+
+/* - Fondo del scroll (Track) - */
+.lista-partidas-scroll::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+    border: none;
+}
+
+/* - Barra móvil del scroll (Thumb) - */
+.lista-partidas-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2); 
+    border-radius: 4px;
+}
+
+/* - Barra móvil al pasar el ratón (Hover) - */
+.lista-partidas-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4); 
+}
+
+.cabecera-lista-partidas .col-jugadores {
+    text-align: left;
+    padding-left: 15px; /* Empuja XOGADORES a la línea roja */
+}
+
+.cabecera-lista-partidas .col-bomba {
+    text-align: left;
+    padding-left: 20px; /* Empuja BOMBA a la línea roja */
+}
+
+.cabecera-lista-partidas .col-vidas {
+    text-align: left;
+    padding-left: 15px; /* Empuja VIDAS a la línea roja */
+}
+
+.cabecera-lista-partidas .col-accion {
+    /* Le quitamos el formato flex para que no se pegue a la derecha */
+    display: block; 
+    text-align: left;
+    padding-left: 35px; /* Empuja ACCIÓN hasta el borde izquierdo del botón UNIRSE */
+}

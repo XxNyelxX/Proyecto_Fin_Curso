@@ -213,6 +213,27 @@ class PartidaModel {
         }
     }
 
+    public function ListarPartidasAbiertas() {
+        try {
+            // Traemos las partidas en espera. 
+            // También traemos el nombre del host por si quieres mostrarlo.
+            $sql = "SELECT p.*, u.username as nombre_host 
+                    FROM partidas p
+                    JOIN usuarios u ON p.id_host = u.id_usuario
+                    WHERE p.estado = 'esperando'
+                    ORDER BY p.fecha_partida DESC";
+            
+            $stm = $this->pdo->prepare($sql);
+            $stm->execute();
+            
+            // Devolvemos los objetos para que el foreach del HTML funcione
+            return $stm->fetchAll(PDO::FETCH_OBJ);
+        } catch (PDOException $e) {
+            error_log("Error al listar partidas: " . $e->getMessage());
+            return [];
+        }
+    }
+
 
 }
 ?>
