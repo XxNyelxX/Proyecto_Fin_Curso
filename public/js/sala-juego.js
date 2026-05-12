@@ -1,12 +1,14 @@
 // Conectamos al servidor WebSocket en el puerto 8080 (usamos la IP local para la máquina virtual)
 const socket = new WebSocket('ws://127.0.0.1:8080');
 
-let palabraActual = "";
+let palabraActual = ""; // Almacena las letras que el jugador está tecleando en tiempo real antes de darle al Enter.
 let turnoActivoSlot = null; // Guardará el número de silla (index) donde toca escribir
 let turnoGeneralMesa = null; // Para saber de quién es el turno en la sala
-let estadoClasePalabra = '';
-let heAcertado = false;
-let palabrasCongeladas = {};
+let estadoGeneralMesa = null; //Saber si la partida esta iniciada
+let heAcertado = false;// Actúa como un seguro. Cuando pasa a 'true', bloquea el envío de más letras y activa la clase correcta
+let palabrasCongeladas = {}; //Guarda las palabras correctas de cada jugador para poder visualizarlas
+let tiempoRestante = 0; // Guardará cuántos segundos quedan a la bomba
+let intervaloBomba = null; // Guardará el temporizador (setInterval) de la bomba
 
 // Cuando la conexión se abre correctamente
 socket.addEventListener('open', function (event) {
@@ -88,14 +90,21 @@ function sincronizarMesa() {
             let tieneTurno = null;
 
             // Si el turno del servidor es distinto al que teníamos guardado, limpiamos la palabra
-            if (turnoGeneralMesa !== datos.turno_actual) {
+            if (turnoGeneralMesa !== datos.turno_actual || estadoGeneralMesa !== datos.estado) {
                 palabraActual = "";
                 heAcertado = false;
                 turnoGeneralMesa = datos.turno_actual;
+                estadoGeneralMesa = datos.estado;
 
                 // Borramos la palabra congelada de la silla a la que le toca AHORA
                 // para que empiece en blanco su nuevo turno.
                 delete palabrasCongeladas[datos.turno_actual];
+
+                // Si la partida está iniciada, reiniciamos el reloj al máximo de tiempo de esta partida
+                if (datos.estado === 'iniciada') {
+                    tiempoRestante = datos.tiempo_bomba;
+                    iniciarRelojBomba();
+                }
             }
 
             // Sentamos a los jugadores uno por uno según la Base de Datos
@@ -104,6 +113,8 @@ function sincronizarMesa() {
 
                 // Si la partida está iniciada y su silla coincide con el turno actual, le damos el verde
                 const esTurno = (datos.estado === 'iniciada' && index == datos.turno_actual) ? 'turno-activo' : '';
+
+                const estaEliminado = (jugador.vidas_restantes <= 0) ? 'eliminado' : '';
 
                 // Si el turno actual cae en mi
                 if (esTurno && jugador.id_usuario == MI_ID) {
@@ -141,11 +152,11 @@ function sincronizarMesa() {
                 
                 contenedor.innerHTML += `
                     <div class="jugador-slot slot-${index}" data-id="${jugador.id_usuario}">
-                        <div class="vidas-jugador">❤ ${datos.vidas}</div>
+                        <div class="vidas-jugador">❤ ${jugador.vidas_restantes}</div>
                         <span class="nombre-jugador">${jugador.username}</span>
                         
                         <div class="contenedor-avatar-panel">
-                            <div class="avatar-wrapper ${esHost} ${esTurno}" onclick="togglePanel(this)">
+                            <div class="avatar-wrapper ${esHost} ${esTurno} ${estaEliminado}" onclick="togglePanel(this)">
                                 <img src="img/avatars/${jugador.foto}" alt="Avatar">
                             </div>
                             ${panelExpulsar}
@@ -465,6 +476,67 @@ function validarPalabra(palabra, divPalabra) {
             }
         })
         .catch(error => console.error("Error en la validación:", error));
+}
+
+// --- LÓGICA DE LA BOMBA ---
+function iniciarRelojBomba() {
+    // Limpiamos cualquier reloj anterior para que no se pisen
+    if (intervaloBomba) {
+        clearInterval(intervaloBomba);
+    }
+
+    // Buscamos dónde dibujar el tiempo (tienes un elemento con la clase .esperando-mini)
+    // Vamos a reutilizarlo para mostrar el tiempo debajo de la bomba
+    let txtTiempo = document.getElementById('reloj-prueba');
+
+    if (!txtTiempo) {
+        // Si no existe, lo creamos y lo metemos dentro de la bomba central
+        txtTiempo = document.createElement('div');
+        txtTiempo.id = 'reloj-prueba';
+        txtTiempo.style.color = '#ff003c';
+        txtTiempo.style.fontSize = '1.8rem';
+        txtTiempo.style.marginTop = '10px';
+        
+        const bombaCentral = document.querySelector('.bomba-central');
+        if (bombaCentral) {
+            bombaCentral.appendChild(txtTiempo);
+        }
+    }
+    
+    // Pintamos el primer segundo de inmediato
+    if (txtTiempo) {
+        txtTiempo.innerText = `⏳ ${tiempoRestante}s`;
+        txtTiempo.style.display = 'block'; // Nos aseguramos de que sea visible
+    }
+
+    // Arrancamos el contador que resta 1 cada segundo
+    intervaloBomba = setInterval(() => {
+        tiempoRestante--;
+
+        // Si llega a cero (o menos)
+        if (tiempoRestante <= 0) {
+            clearInterval(intervaloBomba); // Detenemos el reloj
+
+            // El HOST es el juez de la partida. Él avisa a PHP para todos.
+            if (SOY_HOST) {
+                fetch(`?c=partida&a=TiempoAgotado&id_partida=${ID_PARTIDA}&turno_esperado=${turnoGeneralMesa}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.status === 'ok') {
+                            sincronizarMesa();
+                            socket.send(JSON.stringify({ tipo: 'recargar_mesa', id_partida: ID_PARTIDA }));
+                        }
+                    })
+                    .catch(error => console.error("Error de conexión:", error));
+            }
+
+        } else {
+            // Si no es cero, actualizamos el texto
+            if (txtTiempo) {
+                txtTiempo.innerText = `⏳ ${tiempoRestante}s`;
+            }
+        }
+    }, 1000); // Se ejecuta cada 1000 milisegundos (1 segundo)
 }
 
 

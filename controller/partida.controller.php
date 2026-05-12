@@ -290,6 +290,8 @@ class PartidaController {
             'estado' => $partida['estado'],
             'turno_actual' => $partida['turno_actual'],
             'silaba_actual' => $partida['silaba_actual'],
+            'tiempo_bomba' => $partida['tiempo_bomba'],
+            'contador_silaba' => $partida['contador_silaba'],
             'jugadores' => $jugadores
         ]);
     }
@@ -402,12 +404,20 @@ class PartidaController {
                         );
                         // Calculamos el siguiente turno
                         $siguiente_turno = ($partida['turno_actual'] + 1) % $total_jugadores;
+                        $vueltas = 0;
+
+                        // Mientras el siguiente jugador tenga 0 vidas, seguimos saltando
+                        while ($jugadores[$siguiente_turno]['vidas_restantes'] <= 0 && $vueltas < $total_jugadores) {
+                            $siguiente_turno = ($siguiente_turno + 1) % $total_jugadores;
+                            $vueltas++;
+                        }
                         
-                        // Generamos la nueva sílaba
+                        // Generamos la nueva sílaba y reseteamos el contador
                         $nueva_silaba = $this->GenerarSilabaAleatoria();
+                        $nuevo_contador = 1;
                         
                         // Guardamos en la BD
-                        $this->modelo->AvanzarTurno($id_partida, $siguiente_turno, $nueva_silaba);
+                        $this->modelo->AvanzarTurno($id_partida, $siguiente_turno, $nueva_silaba, $nuevo_contador);
                     }
                 }
             }
@@ -419,6 +429,83 @@ class PartidaController {
             ]);
         } else {
             echo json_encode(['status' => 'error', 'mensaje' => 'No hay palabra']);
+        }
+        exit;
+    }
+
+    public function TiempoAgotado() {
+        header('Content-Type: application/json');
+
+        if (isset($_GET['id_partida'])) {
+            $id_partida = (int)$_GET['id_partida'];
+            $turno_esperado = (int)$_GET['turno_esperado'];
+            $partida = $this->modelo->ObtenerPartidaPorId($id_partida);
+            $jugadores = $this->modelo->ObtenerJugadoresEnPartida($id_partida);
+            $total_jugadores = count($jugadores);
+
+            if ($partida && $total_jugadores > 0) {
+                // Si el turno actual en la BD ya no es el que el Host nos dice, 
+                // lo ignoramos para no restarle vida al jugador equivocado.
+                if ($partida['turno_actual'] !== $turno_esperado) {
+                    echo json_encode(['status' => 'ignorar']);
+                    exit;
+                }
+
+                // Ahora usamos el id_partida_jugador en lugar del id_usuario
+                $id_pj_afectado = $jugadores[$partida['turno_actual']]['id_partida_jugador'];
+
+                // Simulamos la resta de vida que va a sufrir para que el bucle lo tenga en cuenta
+                $jugadores[$partida['turno_actual']]['vidas_restantes'] -= 1;
+
+                // Contamos cuántos siguen vivos después de que alguien pierda
+                $supervivientes = [];
+                foreach ($jugadores as $j) {
+                    if ($j['vidas_restantes'] > 0) {
+                        $supervivientes[] = $j;
+                    }
+                }
+
+                // Si solo queda un ganador
+                if (count($supervivientes) === 1) {
+                    $ganador = $supervivientes[0];
+                    
+                    // Primero restamos la vida al que perdió
+                    $this->modelo->ProcesarExplosion($id_partida, $id_pj_afectado, $partida['turno_actual'], $partida['silaba_actual'], $partida['contador_silaba']);
+                    
+                    // Luego declaramos al ganador
+                    $this->modelo->DeclararGanador($id_partida, $ganador['id_usuario']);
+                    
+                    echo json_encode(['status' => 'finalizada', 'ganador' => $ganador['username']]);
+                    exit;
+                }
+                
+                // Calculamos el siguiente turno
+                $siguiente_turno = ($partida['turno_actual'] + 1) % $total_jugadores;
+                $vueltas = 0;
+                
+                // Mientras el siguiente jugador tenga 0 vidas, seguimos saltando
+                while ($jugadores[$siguiente_turno]['vidas_restantes'] <= 0 && $vueltas < $total_jugadores) {
+                    $siguiente_turno = ($siguiente_turno + 1) % $total_jugadores;
+                    $vueltas++;
+                }
+
+                $contador_actual = (int)$partida['contador_silaba'];
+                $turnos_maximos = (int)$partida['turnos_silaba'];
+                
+                // Si explota y aun no llega al límite establecido, se repite
+                if ($contador_actual < $turnos_maximos) {
+                    $nueva_silaba = $partida['silaba_actual'];
+                    $nuevo_contador = $contador_actual + 1;
+                } else {
+                    $nueva_silaba = $this->GenerarSilabaAleatoria();
+                    $nuevo_contador = 1;
+                }
+                
+                // Ejecutamos en la BD
+                $exito = $this->modelo->ProcesarExplosion($id_partida, $id_pj_afectado, $siguiente_turno, $nueva_silaba, $nuevo_contador);
+                
+                echo json_encode(['status' => $exito ? 'ok' : 'error']);
+            }
         }
         exit;
     }

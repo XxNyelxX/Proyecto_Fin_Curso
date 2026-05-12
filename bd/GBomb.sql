@@ -43,6 +43,7 @@ CREATE TABLE partidas (
     estado VARCHAR(15) DEFAULT 'espera',
     turno_actual INT DEFAULT 0,
     silaba_actual VARCHAR(10) DEFAULT '',
+    contador_silaba INT DEFAULT 1,
     FOREIGN KEY (id_host) REFERENCES usuarios(id_usuario) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (id_ganador) REFERENCES usuarios(id_usuario) ON DELETE SET NULL ON UPDATE CASCADE
 );

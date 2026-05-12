@@ -379,6 +379,13 @@ a, a:visited, a:active {
 }
 
 
+/* Cuando un jugador se queda sin vidas */
+.avatar-wrapper.eliminado {
+    border-color: #ff003c !important; 
+    box-shadow: none !important;
+    opacity: 0.6; /* Lo apagamos un poco para que parezca un fantasma */
+}
+
 /* ====== TEXTOS Y ANIMACIONES ====== */
 
 
