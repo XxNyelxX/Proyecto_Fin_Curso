@@ -73,6 +73,7 @@
 
 <script>
     const MI_ID = <?php echo $_SESSION['user_id']; ?>;
+    const MI_ROL = <?= isset($_SESSION['id_rol']) ? (int)$_SESSION['id_rol'] : 'null' ?>;
     const ID_PARTIDA = <?php echo $partida['id_partida']; ?>;
     const VIDAS_PARTIDA = <?php echo $partida['vidas']; ?>;
     

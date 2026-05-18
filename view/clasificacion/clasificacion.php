@@ -13,7 +13,7 @@
                 
                 <div class="tarjeta-jugador">
                     <div class="jugador-info">
-                        <img src="img/perfiles/<?= htmlspecialchars($jugador->foto) ?>" alt="Avatar" class="avatar-clasificacion">
+                        <img src="img/avatars/<?= htmlspecialchars($jugador->foto) ?>" alt="Avatar" class="avatar-clasificacion">
                         <span class="nombre-clasificacion"><?= htmlspecialchars($jugador->username) ?></span>
                     </div>
                     <!-- Con number_format le digo con el 0 que no quiero decimales, la coma es el simbolo que separa los decimales

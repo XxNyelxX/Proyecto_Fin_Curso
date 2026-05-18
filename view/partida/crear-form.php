@@ -9,8 +9,8 @@
         <div class="bloque-formulario">
             <label class="label-config label-blanco">NOME DA SALA:</label>
             <input type="text" name="nombre" autocomplete="off" 
-                   value="Sala de <?php echo htmlspecialchars($_SESSION['username']); ?>"
-                   class="input-sala <?php echo isset($errores['nombre']) ? 'input-error' : ''; ?>">
+                    value="<?php echo isset($nombre_defecto) ? htmlspecialchars($nombre_defecto) : 'Sala Nova'; ?>"
+                    class="input-sala <?php echo isset($errores['nombre']) ? 'input-error' : ''; ?>">
         </div>
 
         <div class="bloque-formulario">
@@ -24,18 +24,18 @@
             </div>
             
             <input type="text" id="campo_contrasena" name="contrasena" autocomplete="off" 
-                   placeholder="Contrasinal (opcional)" 
-                   maxlength="15"
-                   class="input-sala" style="margin-top: 15px;">
+                    placeholder="Contrasinal (opcional)" 
+                    maxlength="15"
+                    class="input-sala" style="margin-top: 15px;">
         </div>
 
         <div>
             <div class="slider-header">
                 <label class="label-config label-rosa" style="margin-bottom: 0;">TEMPO DA BOMBA:</label>
-                <span id="val-tiempo" class="slider-valor">5s</span>
+                <span id="val-tiempo" class="slider-valor">10s</span>
             </div>
-            <input type="range" name="tiempo_bomba" min="1" max="10" value="5" class="slider-pixel"
-                   oninput="document.getElementById('val-tiempo').innerText = this.value + 's'">
+            <input type="range" name="tiempo_bomba" min="1" max="20" value="10" class="slider-pixel"
+                    oninput="document.getElementById('val-tiempo').innerText = this.value + 's'">
         </div>
 
         <div>
@@ -44,7 +44,7 @@
                 <span id="val-turnos" class="slider-valor">2</span>
             </div>
             <input type="range" name="turnos_silaba" min="1" max="16" value="2" class="slider-pixel"
-                   oninput="document.getElementById('val-turnos').innerText = this.value">
+                    oninput="document.getElementById('val-turnos').innerText = this.value">
         </div>
 
         <div class="bloque-formulario">

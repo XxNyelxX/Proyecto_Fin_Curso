@@ -1,0 +1,122 @@
+<?php
+// Configuración del servidor local
+$host = 'localhost';
+$user = 'root';
+$pass = ''; 
+$db   = 'gbomb'; 
+
+try {
+    // Conecta al servidor MySQL
+    $pdo = new PDO("mysql:host=$host", $user, $pass);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    // Crea la base de datos
+    $pdo->exec("CREATE DATABASE IF NOT EXISTS `$db` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+    echo "<p>Base de datos '$db' verificada/creada correctamente.</p>";
+
+    // Selecciona la base de datos
+    $pdo->exec("USE `$db`");
+
+    // Sentencias SQL completas
+    $sql = "
+        CREATE TABLE IF NOT EXISTS roles (
+            id_rol TINYINT AUTO_INCREMENT PRIMARY KEY,
+            nombre_rol VARCHAR(25) NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS usuarios (
+            id_usuario INT AUTO_INCREMENT PRIMARY KEY,
+            username VARCHAR(50) NOT NULL UNIQUE,
+            email VARCHAR(100) NOT NULL UNIQUE,
+            contrasena VARCHAR(255) NOT NULL,
+            id_rol TINYINT NOT NULL,
+            foto VARCHAR(255) DEFAULT 'default.png',
+            puntuacion_mensual BIGINT DEFAULT 0,
+            mes_ultimo_reinicio TINYINT DEFAULT 1,
+            FOREIGN KEY (id_rol) REFERENCES roles(id_rol) ON DELETE CASCADE ON UPDATE CASCADE
+        );
+
+        CREATE TABLE IF NOT EXISTS partidas (
+            id_partida INT AUTO_INCREMENT PRIMARY KEY,
+            nombre VARCHAR(60),
+            fecha_partida TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            visibilidad VARCHAR(10) DEFAULT 'publica',
+            contrasena VARCHAR(15) DEFAULT '',
+            tiempo_bomba INT DEFAULT 5,
+            turnos_silaba INT DEFAULT 2,
+            vidas INT DEFAULT 2,
+            num_jugadores TINYINT DEFAULT 1,
+            max_jugadores TINYINT DEFAULT 4,
+            id_host INT NOT NULL,
+            id_ganador INT DEFAULT NULL,
+            palabras_usadas TEXT DEFAULT '',
+            estado VARCHAR(15) DEFAULT 'espera',
+            turno_actual INT DEFAULT 0,
+            silaba_actual VARCHAR(10) DEFAULT '',
+            contador_silaba INT DEFAULT 1,
+            FOREIGN KEY (id_host) REFERENCES usuarios(id_usuario) ON DELETE CASCADE ON UPDATE CASCADE,
+            FOREIGN KEY (id_ganador) REFERENCES usuarios(id_usuario) ON DELETE SET NULL ON UPDATE CASCADE
+        );
+
+        CREATE TABLE IF NOT EXISTS partidas_jugadores (
+            id_partida_jugador INT AUTO_INCREMENT PRIMARY KEY,
+            id_partida INT NOT NULL,
+            id_usuario INT NOT NULL,
+            vidas_restantes INT DEFAULT 0,
+            FOREIGN KEY (id_partida) REFERENCES partidas(id_partida) ON DELETE CASCADE ON UPDATE CASCADE,
+            FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE ON UPDATE CASCADE
+        );
+
+        CREATE TABLE IF NOT EXISTS partidas_jugadas (
+            id_jugada INT AUTO_INCREMENT PRIMARY KEY,
+            id_partida INT NOT NULL,
+            id_usuario INT NOT NULL,
+            silaba VARCHAR(5) NOT NULL,
+            palabra_acertada VARCHAR(100) NOT NULL,
+            puntos_ganados INT DEFAULT 0,
+            FOREIGN KEY (id_partida) REFERENCES partidas(id_partida) ON DELETE CASCADE ON UPDATE CASCADE,
+            FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE ON UPDATE CASCADE
+        );
+
+        CREATE TABLE IF NOT EXISTS diccionario_local (
+            id_palabra INT AUTO_INCREMENT PRIMARY KEY,
+            palabra VARCHAR(100) NOT NULL UNIQUE,
+            fecha_anadida TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
+        -- Inserción de Roles
+        INSERT IGNORE INTO roles (id_rol, nombre_rol) VALUES 
+        (1, 'administrador'),
+        (2, 'usuario');
+
+        -- Inserción de Usuarios anónimos
+        INSERT IGNORE INTO usuarios (id_usuario, username, email, contrasena, foto, id_rol) VALUES
+        (1, 'Anónimo 1', 'anonimo1@test.local', 'anonimo', 'default.png', 2),
+        (2, 'Anónimo 2', 'anonimo2@test.local', 'anonimo', 'default.png', 2),
+        (3, 'Anónimo 3', 'anonimo3@test.local', 'anonimo', 'default.png', 2),
+        (4, 'Anónimo 4', 'anonimo4@test.local', 'anonimo', 'default.png', 2),
+        (5, 'Anónimo 5', 'anonimo5@test.local', 'anonimo', 'default.png', 2),
+        (6, 'Anónimo 6', 'anonimo6@test.local', 'anonimo', 'default.png', 2),
+        (7, 'Anónimo 7', 'anonimo7@test.local', 'anonimo', 'default.png', 2),
+        (8, 'Anónimo 8', 'anonimo8@test.local', 'anonimo', 'default.png', 2),
+        (9, 'Anónimo 9', 'anonimo9@test.local', 'anonimo', 'default.png', 2),
+        (10, 'Anónimo 10', 'anonimo10@test.local', 'anonimo', 'default.png', 2),
+        (11, 'Anónimo 11', 'anonimo11@test.local', 'anonimo', 'default.png', 2),
+        (12, 'Anónimo 12', 'anonimo12@test.local', 'anonimo', 'default.png', 2),
+        (13, 'Anónimo 13', 'anonimo13@test.local', 'anonimo', 'default.png', 2),
+        (14, 'Anónimo 14', 'anonimo14@test.local', 'anonimo', 'default.png', 2),
+        (15, 'Anónimo 15', 'anonimo15@test.local', 'anonimo', 'default.png', 2),
+        (16, 'Anónimo 16', 'anonimo16@test.local', 'anonimo', 'default.png', 2);
+    ";
+    
+    // Ejecuta las sentencias
+    $pdo->exec($sql);
+    echo "<p>Tablas y datos iniciales creados correctamente.</p>";
+
+    echo "<a href='index.php'>Ir al juego</a>";
+
+} catch (PDOException $e) {
+    echo "<h3>Error en la instalación:</h3>";
+    echo "<p>" . $e->getMessage() . "</p>";
+}
+?>

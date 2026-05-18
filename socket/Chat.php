@@ -54,10 +54,25 @@ class Chat implements MessageComponentInterface {
                             $player->send(json_encode($aviso));
                         }
                     }
-                    break;
+                break;
 
-                    //Cuando se añade un clon se recarga la mesa para mostrarlo
-                    case 'recargar_mesa':
+                // Cuando hay un cambio que afecta a la lista pública de partidas
+                case 'actualizar_lista_partidas':
+                    $aviso = [
+                        'tipo' => 'recargar_lista_partidas'
+                    ];
+                    
+                    // Reparte el aviso a los clientes conectados
+                    foreach ($this->players as $player) {
+                        // Envía la recarga solo a las conexiones que NO tienen una partida asignada
+                        if (!isset($player->id_partida)) {
+                            $player->send(json_encode($aviso));
+                        }
+                    }
+                break;
+
+                //Cuando se añade un clon se recarga la mesa para mostrarlo
+                case 'recargar_mesa':
                     // Un jugador pide que todos los de su sala actualicen la pantalla
                     $aviso = [
                         'tipo' => 'recargar_mesa'
@@ -68,9 +83,9 @@ class Chat implements MessageComponentInterface {
                             $player->send(json_encode($aviso));
                         }
                     }
-                    break;
+                break;
 
-                    case 'expulsion':
+                case 'expulsion':
                     $aviso = [
                         'tipo' => 'expulsion',
                         'id_expulsado' => $datos['id_expulsado']
@@ -82,9 +97,9 @@ class Chat implements MessageComponentInterface {
                             $player->send(json_encode($aviso));
                         }
                     }
-                    break;
+                break;
 
-                    case 'tecleando':
+                case 'tecleando':
                     // Empaquetamos lo que está escribiendo el jugador
                     $aviso_teclado = [
                         'tipo' => 'tecleando',
@@ -98,13 +113,14 @@ class Chat implements MessageComponentInterface {
                             $player->send(json_encode($aviso_teclado));
                         }
                     }
-                    break;
+                break;
 
-                    case 'palabra_acertada':
+                case 'palabra_acertada':
                     $aviso_acierto = [
                         'tipo' => 'palabra_acertada',
                         'palabra' => $datos['palabra'],
-                        'slot' => $datos['slot']
+                        'slot' => $datos['slot'],
+                        'puntos' => isset($datos['puntos']) ? $datos['puntos'] : 0
                     ];
                     
                     // Repartimos el aviso a todos los de la sala, excepto al que acertó
@@ -113,9 +129,9 @@ class Chat implements MessageComponentInterface {
                             $player->send(json_encode($aviso_acierto));
                         }
                     }
-                    break;
+                break;
 
-                    case 'palabra_fallada':
+                case 'palabra_fallada':
                     $aviso_fallo = [
                         'tipo' => 'palabra_fallada',
                         'slot' => $datos['slot']
@@ -127,9 +143,8 @@ class Chat implements MessageComponentInterface {
                             $player->send(json_encode($aviso_fallo));
                         }
                     }
-                    break;
-                    
-                // Aquí iremos añadiendo más 'case' (escribir_letra, arrancar_juego, etc.)
+                break;
+
             }
         }
     }
@@ -154,6 +169,20 @@ class Chat implements MessageComponentInterface {
             }
             
             echo "Xogador {$conn->id_usuario} desconectouse da sala {$conn->id_partida}\n";
+        }
+
+        // --- AVISO GLOBAL DE ACTUALIZACIÓN ---
+        // Se envía SIEMPRE que alguien se desconecta (estuviera jugando o no),
+        // porque si estaba jugando, la BD ha cambiado (tiene un jugador menos).
+        $aviso_lista = [
+            'tipo' => 'recargar_lista_partidas'
+        ];
+        
+        foreach ($this->players as $player) {
+            // Solo avisa a los que están en la pantalla "Unirse" 
+            if (!isset($player->id_partida)) {
+                $player->send(json_encode($aviso_lista));
+            }
         }
     }
 

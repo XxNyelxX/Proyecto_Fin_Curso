@@ -1,6 +1,8 @@
 <div class="top-right-controls">
     
-    <button id="btnEstatico" class="btn-animaciones on">ANIMACIONES: ENCENDIDO</button>
+    <?php if (!isset($_SESSION['user_id']) || $_SESSION['user_id'] > 16) { ?>
+        <button id="btnEstatico" class="btn-animaciones on">ANIMACIONES: ENCENDIDO</button>
+    <?php } ?>
         
     <div class="pixel-dropdown-container">
         <button class="btn-desplegable" id="btnUserMenu">
@@ -12,7 +14,11 @@
     
         <div class="pixel-dropdown-content" id="dropdownMenu">
             <?php if (isset($_SESSION['user_id'])) { ?>
-                <a href="?c=acceso&a=EditarPerfil" class="btn-opcion edit-color">MODIFICAR</a>
+                
+                <?php if ($_SESSION['user_id'] > 16) { ?>
+                    <a href="?c=acceso&a=EditarPerfil" class="btn-opcion edit-color">MODIFICAR</a>
+                <?php } ?>
+                
                 <a href="?c=acceso&a=Salir" class="btn-opcion exit-color">SAÍR</a>
             <?php } else { ?>
                 <a href="?c=acceso&a=Entrar" class="btn-opcion login-color">ENTRAR</a>
@@ -26,9 +32,10 @@
     <h1 class="titulo-animado-pixel" style="font-size: 5rem; margin-bottom: 40px; letter-spacing: 5px;">GBOMB</h1>
         
     <div class="botones-menu">
-        <a href="?c=partida&a=Crear" class="btn-gigante btn-crear">CREAR PARTIDA</a>
-        <a href="?c=partida&a=Unirse" class="btn-gigante btn-unirse">UNIRSE A PARTIDA</a>
-        <a href="?c=partida&a=Historial" class="btn-gigante btn-historial">HISTORIAL</a>
-        <a href="?c=clasificacion&a=Clasificacion" class="btn-gigante btn-clasificacion">CLASIFICACIÓN</a>
+        <?php if (!isset($_SESSION['user_id']) || $_SESSION['user_id'] > 16) { ?>
+            <a href="?c=partida&a=Crear" class="btn-gigante btn-crear">CREAR PARTIDA</a>
+            <a href="?c=partida&a=Unirse" class="btn-gigante btn-unirse">UNIRSE A PARTIDA</a>
+            <a href="?c=clasificacion&a=Clasificacion" class="btn-gigante btn-clasificacion">CLASIFICACIÓN</a>
+        <?php } ?>
     </div>
 </div>

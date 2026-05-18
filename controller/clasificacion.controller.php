@@ -10,14 +10,22 @@ class ClasificacionController {
     }
 
     public function Clasificacion() {
-        // 1. Obtenemos el mes actual (del 1 al 12)
+
+        // Solo los usuarios sin sesión anónima entran
+        if (isset($_SESSION['user_id']) && $_SESSION['user_id'] <= 16) {
+            header("Location: index.php");
+            exit();
+        }
+
+        // mes y el año actuales
         $mesActual = date('n');
+        $anhoActual = date('Y');
         
-        // 2. Pedimos los datos al modelo y los guardamos en una variable llamada $jugadores
-        $jugadores = $this->modelo->ObtenerClasificacionMensual($mesActual);
+        // Pide los datos al modelo y los guarda
+        $jugadores = $this->modelo->ObtenerClasificacionMensual($mesActual, $anhoActual);
         
-        // 3. Cargamos las vistas. 
-        // Como incluimos la vista DESPUÉS de definir $jugadores, la vista podrá leer esa variable.
+        // Carga las vistas. 
+        // Como incluye la vista DESPUÉS de definir $jugadores, la vista podrá leer esa variable.
 
         require_once '../view/header.php';
         require_once '../view/clasificacion/clasificacion.php';

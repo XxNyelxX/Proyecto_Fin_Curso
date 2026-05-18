@@ -12,7 +12,7 @@ class PartidaModel {
         try {
             // Añadimos max_jugadores a la consulta SQL
             $sql = "INSERT INTO partidas (nombre, visibilidad, contrasena, tiempo_bomba, turnos_silaba, vidas, num_jugadores, max_jugadores, id_host) 
-                    VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?)";
+                    VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?)";
             
             $stm = $this->pdo->prepare($sql);
             
@@ -49,10 +49,18 @@ class PartidaModel {
     public function AñadirJugadorAPartida($id_partida, $id_usuario) {
         try {
             $sql = "INSERT INTO partidas_jugadores (id_partida, id_usuario, vidas_restantes) 
-            SELECT ?, ?, vidas FROM partidas WHERE id_partida = ?";
-            $stm = $this->pdo->prepare($sql);
+                    SELECT ?, ?, vidas FROM partidas WHERE id_partida = ?";
+            $stm1 = $this->pdo->prepare($sql);
             // Pasamos el id_partida dos veces (una para el INSERT y otra para el WHERE del SELECT)
-            return $stm->execute([$id_partida, $id_usuario, $id_partida]);
+            $exito = $stm1->execute([$id_partida, $id_usuario, $id_partida]);
+
+            // Suma 1 al contador de la partida
+            if ($exito) {
+                $sql2 = "UPDATE partidas SET num_jugadores = num_jugadores + 1 WHERE id_partida = ?";
+                $stm2 = $this->pdo->prepare($sql2);
+                $stm2->execute([$id_partida]);
+            }
+            return $exito;
             
         } catch (PDOException $e) {
             return false; 
@@ -125,14 +133,25 @@ class PartidaModel {
     public function UnirJugadorAPartida($id_partida, $id_usuario) {
         $sql = "INSERT INTO partidas_jugadores (id_partida, id_usuario, vidas_restantes) 
         SELECT ?, ?, vidas FROM partidas WHERE id_partida = ?";
-        $stm = $this->pdo->prepare($sql);
-        $stm->execute([$id_partida, $id_usuario, $id_partida]);
+        $stm1 = $this->pdo->prepare($sql);
+        $stm1->execute([$id_partida, $id_usuario, $id_partida]);
+
+        // Suma 1 al contador de la partida
+        $sql2 = "UPDATE partidas SET num_jugadores = num_jugadores + 1 WHERE id_partida = ?";
+        $stm2 = $this->pdo->prepare($sql2);
+        $stm2->execute([$id_partida]);
     }
 
     public function SalirDePartida($id_partida, $id_usuario) {
-        $sql = "DELETE FROM partidas_jugadores WHERE id_partida = ? AND id_usuario = ?";
-        $stm = $this->pdo->prepare($sql);
-        $stm->execute([$id_partida, $id_usuario]);
+        // Elimina el registro del jugador
+        $sql1 = "DELETE FROM partidas_jugadores WHERE id_partida = ? AND id_usuario = ?";
+        $stm1 = $this->pdo->prepare($sql1);
+        $stm1->execute([$id_partida, $id_usuario]);
+
+        // Resta 1 al contador de la partida
+        $sql2 = "UPDATE partidas SET num_jugadores = num_jugadores - 1 WHERE id_partida = ?";
+        $stm2 = $this->pdo->prepare($sql2);
+        $stm2->execute([$id_partida]);
     }
 
     public function CambiarHost($id_partida, $nuevo_host_id) {
@@ -234,6 +253,69 @@ class PartidaModel {
         }
     }
 
+    public function SumarPuntosUsuario($id_usuario, $puntos) {
+        try {
+            // Evita que los usuarios anónimos (IDs del 1 al 16) sumen puntos
+            if ($id_usuario <= 16) {
+                return true;
+            }
+
+            // Obtiene el mes y año actuales reales
+            $mesActual = (int)date('n');
+            $anhoActual = (int)date('Y');
+
+            // Consulta el estado actual del usuario
+            $sqlCheck = "SELECT mes_ultimo_reinicio, anho_ultimo_reinicio FROM usuarios WHERE id_usuario = ?";
+            $stmCheck = $this->pdo->prepare($sqlCheck);
+            $stmCheck->execute([$id_usuario]);
+            $usuario = $stmCheck->fetch(PDO::FETCH_ASSOC);
+
+            if ($usuario) {
+                // Si el mes o el año no coinciden, limpia la puntuación vieja
+                if ((int)$usuario['mes_ultimo_reinicio'] !== $mesActual || (int)$usuario['anho_ultimo_reinicio'] !== $anhoActual) {
+                    $sqlReset = "UPDATE usuarios SET puntuacion_mensual = 0, mes_ultimo_reinicio = ?, anho_ultimo_reinicio = ? WHERE id_usuario = ?";
+                    $stmReset = $this->pdo->prepare($sqlReset);
+                    $stmReset = $stmReset->execute([$mesActual, $anhoActual, $id_usuario]);
+                }
+            }
+
+            // Suma los puntos acumulados en la jugada
+            $sqlSumar = "UPDATE usuarios SET puntuacion_mensual = puntuacion_mensual + ? WHERE id_usuario = ?";
+            $stmSumar = $this->pdo->prepare($sqlSumar);
+            $stmSumar->execute([$puntos, $id_usuario]);
+            
+            return true;
+        } catch (Exception $e) {
+            error_log("Error al gestionar la puntuación mensual del usuario: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function PalabraYaUsada($id_partida, $palabra) {
+        try {
+            $sql = "SELECT COUNT(*) FROM partidas_jugadas WHERE id_partida = ? AND palabra_acertada = ?";
+            $stm = $this->pdo->prepare($sql);
+            $stm->execute([$id_partida, $palabra]);
+            
+            // Si devuelve más de 0, es que ya se usó
+            return $stm->fetchColumn() > 0;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+    public function EliminarVidasPorAbandono($id_partida, $id_usuario) {
+        try {
+            $sql = "UPDATE partidas_jugadores 
+                    SET vidas_restantes = 0 
+                    WHERE id_partida = ? AND id_usuario = ?";
+            $stm = $this->pdo->prepare($sql);
+            return $stm->execute([$id_partida, $id_usuario]);
+        } catch (Exception $e) {
+            error_log("Error al quitar vidas por abandono: " . $e->getMessage());
+            return false;
+        }
+    }
 
 }
 ?>

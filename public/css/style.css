@@ -383,7 +383,49 @@ a, a:visited, a:active {
 .avatar-wrapper.eliminado {
     border-color: #ff003c !important; 
     box-shadow: none !important;
-    opacity: 0.6; /* Lo apagamos un poco para que parezca un fantasma */
+    opacity: 0.6;
+}
+
+/* Contenedor principal */
+.contenedor-unirse {
+    width: 90%;
+    max-width: 1000px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.lista-partidas-scroll {
+    width: 100%; /* <-- Esto arregla el descuadre */
+    height: 60vh;
+    background-color: transparent; 
+    border: none;
+    box-shadow: none;
+    padding: 10px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* - Scrollbar minimalista semitransparente - */
+.lista-partidas-scroll::-webkit-scrollbar {
+    width: 8px;
+}
+
+/* - Fondo del scroll (Track) - */
+.lista-partidas-scroll::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+    border: none;
+}
+
+/* - Barra móvil del scroll (Thumb) - */
+.lista-partidas-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2); 
+    border-radius: 4px;
+}
+
+/* - Barra móvil al pasar el ratón (Hover) - */
+.lista-partidas-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4); 
 }
 
 /* ====== TEXTOS Y ANIMACIONES ====== */
@@ -441,11 +483,68 @@ body.modo-estatico .titulo-animado-pixel {
     letter-spacing: 3px;
 }
 
+/* -- Texto Victoria-- */
+.texto-victoria {
+    position: absolute;
+    top: -15%; 
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 1000;
+    pointer-events: none; 
+}
+
+/* -- Animación de Puntos Ganados -- */
+.puntos-flotantes {
+    position: absolute;
+    transform: translateX(-50%); /* Centra el texto en su coordenada */
+    color: #ffeb3b;
+    font-size: 2.5rem;
+    font-family: 'VT323', monospace;
+    text-shadow: 2px 2px 0 #000;
+    z-index: 9999; /* Por encima de todo para que no se oculte */
+    pointer-events: none;
+    animation: flotarPuntosAbsoluto 2.5s ease-out forwards;
+}
+
+@keyframes flotarPuntosAbsoluto {
+    0% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
+    100% { transform: translateX(-50%) translateY(-60px) scale(1.3); opacity: 0; }
+}
+
 
 /* ====== FORMULARIOS ====== */
 
 
 /* ------ Login y Registro ------ */
+
+/* ------ Buscador ------ */
+
+.contenedor-buscador {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 25px;
+    width: 100%;
+}
+
+#inputBuscador {
+    width: 90%;
+    max-width: 650px;
+    padding: 10px;
+    background-color: #1a1c23;
+    border: 2px solid #8892b0;
+    color: #fff;
+    font-family: 'VT323', monospace;
+    font-size: 1.5rem;
+    text-align: center;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+}
+
+#inputBuscador:focus {
+    border-color: #00e5ff;
+}
 
 
 /* -- Contenedor del login -- */
@@ -1058,6 +1157,59 @@ body.modo-estatico .btn-arrancar.listo:active {
 }
 
 
+/* ------ Acciones de Partida ------ */
+
+/* Botones base (jugador normal) */
+.btn-unirse-accion, .btn-unirse-bloqueado, .btn-espectar-accion {
+    padding: 10px 20px; 
+    font-size: 1.1rem; 
+    font-family: 'VT323', monospace;
+    text-decoration: none;
+    border: 2px solid #fff;
+    min-width: 100px;
+    text-align: center;
+    display: inline-block;
+    transition: transform 0.2s ease, background-color 0.2s ease; 
+}
+
+/* Animación hover: El botón crece un 10% */
+.btn-unirse-accion:hover, .btn-espectar-accion:hover {
+    transform: scale(1.1);
+}
+
+.btn-unirse-bloqueado:hover {
+    transform: none;
+}
+
+.btn-unirse-accion {
+    background: #00a85a;
+    color: #ffffff;
+}
+
+.btn-unirse-bloqueado {
+    background: #444;
+    color: #888;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.btn-espectar-accion {
+    background: #00d4ff;
+    color: #000;
+}
+
+/* Modificador de tamaño para los Admins */
+.btn-admin-size {
+    padding: 8px 14px !important; 
+    font-size: 0.95rem !important; 
+    min-width: 80px !important;
+}
+
+.btn-espectar-accion:active, .btn-espectar-accion:visited {
+    color: #000;
+}
+
+
 
 /* ====== DESPLEGABLES ====== */
 
@@ -1361,15 +1513,7 @@ body.modo-estatico .btn-arrancar.listo:active {
 
 
 
-
-
-/* Contenedor principal */
-.contenedor-unirse {
-    width: 90%;
-    max-width: 1000px;
-    margin: 0 auto;
-    text-align: center;
-}
+/* ------ Lista de Partidas ------ */
 
 /* Cabecera de la lista */
 .cabecera-lista-partidas {
@@ -1407,13 +1551,14 @@ body.modo-estatico .btn-arrancar.listo:active {
 }
 
 /* Columnas para alinear todo */
-.col-nombre    { flex: 2; text-align: left; }
-.col-jugadores { flex: 1; }
-.col-bomba     { flex: 1; }
-.col-vidas     { flex: 1; }
-.col-accion    { flex: 1.5; display: flex; gap: 10px; justify-content: flex-end; }
+.col-nombre      { flex: 1.5; text-align: left; }
+.col-jugadores   { flex: 1; }
+.col-bomba       { flex: 1; }
+.col-vidas       { flex: 1; }
+.col-visibilidad { flex: 1; }
+.col-accion      { flex: 2; display: flex; gap: 10px; justify-content: flex-end; }
 
-/* Estilo de los textos SIN negrita */
+/* Estilo de los textos */
 .nombre-sala {
     font-size: 1.4rem;
     color: #fff;
@@ -1424,145 +1569,103 @@ body.modo-estatico .btn-arrancar.listo:active {
     color: #eee;
 }
 
-/* Botones más grandes y SIN negrita */
-.btn-unirse-accion, .btn-unirse-bloqueado, .btn-espectar-accion {
-    padding: 14px 24px; 
-    font-size: 1.3rem; 
-    text-decoration: none;
-    border-radius: 4px;
-    min-width: 120px;
-    text-align: center;
-    display: inline-block; /* Necesario para que el transform funcione perfectamente */
-    transition: transform 0.2s ease, background-color 0.2s ease; /* Prepara la animación */
-}
-
-/* Animación hover: El botón crece un 10% */
-.btn-unirse-accion:hover, .btn-espectar-accion:hover {
-    transform: scale(1.1);
-}
-
-/* El botón bloqueado no crece al pasar el ratón */
-.btn-unirse-bloqueado:hover {
-    transform: none;
-}
-
-.btn-unirse-accion {
-    background: #00a85a;
-    color: #000;
-}
-
-.btn-unirse-bloqueado {
-    background: #444;
-    color: #888;
-    cursor: not-allowed;
-    pointer-events: none;
-}
-
-.btn-espectar-accion {
-    background: #00d4ff;
-    color: #000;
-}
-
-/* Botones base (jugador normal) */
-.btn-unirse-accion, .btn-unirse-bloqueado, .btn-espectar-accion {
-    padding: 10px 20px; 
-    font-size: 1.1rem; 
-    text-decoration: none;
-    border-radius: 4px;
-    min-width: 100px;
-    text-align: center;
-    display: inline-block; 
-    transition: transform 0.2s ease, background-color 0.2s ease; 
-}
-
-/* Modificador de tamaño para los Admins */
-.btn-admin-size {
-    padding: 8px 14px !important; 
-    font-size: 0.95rem !important; 
-    min-width: 80px !important;
-}
-
-.btn-unirse-accion:hover, .btn-espectar-accion:hover {
-    transform: scale(1.1);
-}
-
-.btn-unirse-bloqueado:hover {
-    transform: none;
-}
-
-.btn-unirse-accion {
-    background: #00a85a;
-    color: #000;
-}
-
-.btn-unirse-bloqueado {
-    background: #444;
-    color: #888;
-    cursor: not-allowed;
-    pointer-events: none;
-}
-
-.btn-espectar-accion {
-    background: #00d4ff;
-    color: #000;
-}
-
-.btn-espectar-accion:active, .btn-espectar-accion:visited {
-    color: #000;
-}
-
-.lista-partidas-scroll {
-    width: 100%; /* <-- Esto arregla el descuadre */
-    height: 60vh;
-    background-color: transparent; 
-    border: none;
-    box-shadow: none;
-    padding: 10px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-}
-
-/* - Scrollbar minimalista semitransparente - */
-.lista-partidas-scroll::-webkit-scrollbar {
-    width: 8px;
-}
-
-/* - Fondo del scroll (Track) - */
-.lista-partidas-scroll::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.02);
-    border: none;
-}
-
-/* - Barra móvil del scroll (Thumb) - */
-.lista-partidas-scroll::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2); 
-    border-radius: 4px;
-}
-
-/* - Barra móvil al pasar el ratón (Hover) - */
-.lista-partidas-scroll::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.4); 
+.cabecera-lista-partidas > div {
+    box-sizing: border-box;
 }
 
 .cabecera-lista-partidas .col-jugadores {
     text-align: left;
-    padding-left: 15px; /* Empuja XOGADORES a la línea roja */
+    padding-left: 50px;
 }
 
 .cabecera-lista-partidas .col-bomba {
     text-align: left;
-    padding-left: 20px; /* Empuja BOMBA a la línea roja */
+    padding-left: 45px;
 }
 
 .cabecera-lista-partidas .col-vidas {
     text-align: left;
-    padding-left: 15px; /* Empuja VIDAS a la línea roja */
+    padding-left: 35px;
+}
+
+.cabecera-lista-partidas .col-visibilidad {
+    text-align: left;
+    padding-left: 15px; 
 }
 
 .cabecera-lista-partidas .col-accion {
-    /* Le quitamos el formato flex para que no se pegue a la derecha */
-    display: block; 
-    text-align: left;
-    padding-left: 35px; /* Empuja ACCIÓN hasta el borde izquierdo del botón UNIRSE */
+    text-align: right;
+    padding-right: 100px; /* El valor que comprobaste que queda perfecto */
+}
+
+/* ====== MODAL CONTRASEÑA ====== */
+
+/* -- Fondo Oscuro del Modal -- */
+.modal-pixel-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(11, 13, 18, 0.85); /* Oscurece el fondo */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* Por encima de todo */
+    
+    /* Animación de aparición */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+/* Estado activo del fondo */
+.modal-pixel-overlay.activo {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* -- Caja Principal del Modal -- */
+.modal-pixel-content {
+    background-color: #1a1e29;
+    padding: 40px;
+    width: 350px;
+    text-align: center;
+    border: 4px solid #fff;
+    box-shadow: 
+        -8px -8px 0 0 #ff007f,
+        8px -4px 0 0 #00e5ff,
+        12px 12px 0 0 #7fff00,
+        -4px 8px 0 0 #ffeb3b,
+        0px 0px 0 8px #0b0d12;
+    
+    /* Animación de escala */
+    transform: scale(0.8);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Estado activo de la caja */
+.modal-pixel-overlay.activo .modal-pixel-content {
+    transform: scale(1);
+}
+
+/* Evitamos que la caja se vea afectada si tienes activado el modo estático */
+body.modo-estatico .modal-pixel-overlay {
+    transition: none !important;
+}
+body.modo-estatico .modal-pixel-content {
+    transition: none !important;
+}
+
+/* Estilo del input del modal */
+#inputModalPass {
+    width: 100%;
+    margin-top: 10px;
+    text-align: center;
+}
+
+/* Botones dentro del modal (sobreescribimos los anchos del btn-selector) */
+.modal-pixel-content .btn-selector {
+    padding: 10px 0;
+    font-size: 1.5rem;
 }

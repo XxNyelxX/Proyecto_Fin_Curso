@@ -7,13 +7,14 @@ let turnoGeneralMesa = null; // Para saber de quién es el turno en la sala
 let estadoGeneralMesa = null; //Saber si la partida esta iniciada
 let heAcertado = false;// Actúa como un seguro. Cuando pasa a 'true', bloquea el envío de más letras y activa la clase correcta
 let palabrasCongeladas = {}; //Guarda las palabras correctas de cada jugador para poder visualizarlas
+let sillasTemblando = {}; // Guarda qué sillas están temblando por fallar
 let tiempoRestante = 0; // Guardará cuántos segundos quedan a la bomba
 let intervaloBomba = null; // Guardará el temporizador (setInterval) de la bomba
 
 // Cuando la conexión se abre correctamente
 socket.addEventListener('open', function (event) {
     
-    // Aquí es donde mandamos nuestro primer paquete estructurado en JSON
+    // Mandamos el js al resto de jugadores
     const mensajePresentacion = {
         tipo: 'conexion_nueva',
         id_usuario: MI_ID,
@@ -23,8 +24,11 @@ socket.addEventListener('open', function (event) {
         es_host: SOY_HOST
     };
     
-    // Convertimos el objeto JSON a texto para que pueda viajar por el cable
+    // Convierte el objeto JSON a texto
     socket.send(JSON.stringify(mensajePresentacion));
+
+    // Avisa a la pestaña Unirse de la nueva conexión
+    socket.send(JSON.stringify({ tipo: 'actualizar_lista_partidas' }));
 });
 
 // Cuando recibimos un mensaje del servidor
@@ -62,6 +66,10 @@ socket.addEventListener('message', function (event) {
             divPalabra.innerText = datos.palabra;
             divPalabra.classList.add('correcta');
         }
+
+        if (datos.puntos > 0) {
+            mostrarAnimacionPuntos(datos.slot, datos.puntos);
+        }
     } else if (datos.tipo === 'palabra_fallada') {
         // Encontramos la silla del que ha fallado
         const divPalabra = document.getElementById(`palabra-slot-${datos.slot}`);
@@ -83,8 +91,35 @@ function sincronizarMesa() {
     fetch(`?c=partida&a=DatosSalaJSON&id=${ID_PARTIDA}`)
         .then(respuesta => respuesta.json())
         .then(datos => {
-            
+
+            // Lee la URL nada más recibir los datos
+            const urlParams = new URLSearchParams(window.location.search);
+            const accionURL = urlParams.get('a');
+
+            // Comprobamos si nuestra ID sigue existiendo en la base de datos de esta partida
+            const sigoEnLaMesa = datos.jugadores.some(jugador => jugador.id_usuario == MI_ID);
+
+            // Si ya no estamos (porque salimos por otra pestaña o nos echaron), a la calle
+            if (!sigoEnLaMesa) {
+                // Si no eres administrador, no permitimos que te quedes observando el flujo de la mesa
+                if (accionURL === 'Sala' && MI_ROL != 1) {
+                    window.location.href = 'index.php';
+                    return;
+                }
+            }
+
             const contenedor = document.querySelector('.circulo-jugadores');
+
+            // El código busca si existe un panel abierto en este instante y guarda el ID del jugador
+            const panelAbierto = document.querySelector('.panel-expulsar.abierto');
+            let idPanelAbierto = null;
+            if (panelAbierto) {
+                const slot = panelAbierto.closest('.jugador-slot');
+                if (slot) {
+                    idPanelAbierto = slot.getAttribute('data-id');
+                }
+            }
+
             contenedor.innerHTML = ''; // Limpiamos la mesa por completo
 
             let tieneTurno = null;
@@ -124,6 +159,7 @@ function sincronizarMesa() {
                 // Averiguamos qué texto mostrar y con qué clase
                 let textoMostrar = "";
                 let claseAcertada = "";
+                let claseFallo = sillasTemblando[index] ? "fallo" : ""; // Comprueba si debe temblar
 
                 if (esTurno === 'turno-activo') {
                     // Si es su turno, muestra lo que está tecleando
@@ -160,13 +196,25 @@ function sincronizarMesa() {
                                 <img src="img/avatars/${jugador.foto}" alt="Avatar">
                             </div>
                             ${panelExpulsar}
-                            <div class="palabra-escrita ${claseAcertada}" id="palabra-slot-${index}">${textoMostrar}</div>
+                            <div class="palabra-escrita ${claseAcertada} ${claseFallo}" id="palabra-slot-${index}">${textoMostrar}</div>
                         </div>
                     </div>
                 `;
             });
 
             turnoActivoSlot = tieneTurno;
+
+            // El código restaura el panel abierto si existe y la partida sigue en espera
+            if (idPanelAbierto && datos.estado === 'esperando') {
+                const slotRestaurar = document.querySelector(`.jugador-slot[data-id="${idPanelAbierto}"]`);
+                if (slotRestaurar) {
+                    const panel = slotRestaurar.querySelector('.panel-expulsar');
+                    if (panel) {
+                        panel.classList.add('abierto');
+                        slotRestaurar.style.zIndex = "100";
+                    }
+                }
+            }
 
             // --- INICIO GESTIÓN VISUAL DE LA MESA ---
             const textoBomba = document.querySelector('.contador-jugadores');
@@ -189,13 +237,50 @@ function sincronizarMesa() {
                     textoBomba.style.fontSize = "32px";
                     textoBomba.style.fontWeight = "bold";
                 }
-            } else if (datos.estado !== 'finalizada'){
+
+                // Limpia el cartel de finalización si existiera de una partida anterior
+                const cartelViejo = document.getElementById('cartel-ganador');
+                if (cartelViejo) cartelViejo.remove();
+
+            } else if (datos.estado === 'finalizada') {
+                
+                // Se detiene el reloj
+                if (intervaloBomba) {
+                    clearInterval(intervaloBomba);
+                }
+
+                // Se busca al ganador
+                const ganador = datos.jugadores.find(j => j.vidas_restantes > 0);
+                const nombreGanador = ganador ? ganador.username : '';
+
+                // Se genera el texto final
+                let cartelGanador = document.getElementById('cartel-ganador');
+                
+                if (!cartelGanador && mesaJuego) {
+                    cartelGanador = document.createElement('div');
+                    cartelGanador.id = 'cartel-ganador';
+                    cartelGanador.className = 'texto-victoria';
+                    
+                    cartelGanador.innerHTML = `
+                        <p style="color: #7fff00; font-size: 3rem; margin: 0; text-shadow: 3px 3px 0 #000;">GAÑOU: ${nombreGanador}</p>
+                    `;
+                    mesaJuego.appendChild(cartelGanador);
+                }
+
+            } else {
                 // Modo sala de espera normal
+                if (mesaJuego){ mesaJuego.classList.remove('partida-iniciada');}
+                const accionesSala = document.querySelector('.acciones-sala');
+                if (accionesSala){ accionesSala.style.display = 'flex';}
+
                 if (textoBomba) {
                     textoBomba.innerText = `${datos.jugadores.length}/${datos.max_jugadores}`;
                     textoBomba.style.fontSize = ""; 
                     textoBomba.style.fontWeight = "";
                 }
+                
+                const cartelViejo = document.getElementById('cartel-ganador');
+                if (cartelViejo) cartelViejo.remove();
             }
             
             //Compruebo que sean más de 1 jugadores para poder empezar
@@ -298,6 +383,9 @@ document.addEventListener('click', function(e) {
                     
                     // Nos recargamos la mesa a nosotros mismos
                     sincronizarMesa();
+
+                    // Avisa a la pestaña Unirse para restar un jugador
+                    socket.send(JSON.stringify({ tipo: 'actualizar_lista_partidas' }));
                 } else {
                     console.error("Error al expulsar:", data.mensaje);
                 }
@@ -338,6 +426,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
                         // Nos mandamos recargar a nosotros mismos también
                         sincronizarMesa();
+
+                        // Avisa a la pestaña Unirse para sumar el clon a la tarjeta
+                        socket.send(JSON.stringify({ tipo: 'actualizar_lista_partidas' }));
                         
                     } else {
                         console.error("Error:", data.mensaje);
@@ -371,9 +462,12 @@ document.addEventListener('click', function(e) {
                     // Si PHP nos dice que nos vayamos, nos vamos al inicio
                     window.location.href = 'index.php';
                 } else if (datos.status === 'ok') {
-                    // Si todo fue bien, forzamos una lectura de la mesa.
+                    // Si todo fue bien, fuerza una lectura de la mesa.
                     // SincronizarMesa() leerá el estado 'iniciada' y ocultará todo.
                     sincronizarMesa();
+
+                    // Avisa para que la partida se quite de la lista pública
+                    socket.send(JSON.stringify({ tipo: 'actualizar_lista_partidas' }));
                 }
             })
             .catch(error => console.error("Error ao arrincar a partida:", error));
@@ -401,7 +495,29 @@ document.addEventListener('keydown', function(e) {
         if (palabraActual.includes(silabaBomba)) {
             validarPalabra(palabraActual, divPalabra);
         } else {
+            // Activa el recuerdo del temblor
+            sillasTemblando[turnoActivoSlot] = true; 
             
+            if (divPalabra) {
+                divPalabra.classList.add('fallo');
+            }
+
+            setTimeout(() => {
+                sillasTemblando[turnoActivoSlot] = false; 
+                
+                // Busca el elemento de nuevo por si se recargó el HTML
+                const divActualizado = document.getElementById(`palabra-slot-${turnoActivoSlot}`);
+                if (divActualizado) {
+                    divActualizado.classList.remove('fallo');
+                }
+            }, 400);
+
+            // Se avisa a los demás para que vean el fallo
+            socket.send(JSON.stringify({
+                tipo: 'palabra_fallada',
+                slot: turnoActivoSlot,
+                id_partida: ID_PARTIDA
+            }));
         }
         
         return; // Cortamos aquí para que no ejecute lo de enviar letras a los demás
@@ -431,7 +547,7 @@ function validarPalabra(palabra, divPalabra) {
     // Guardamos de quién era el turno en este exacto milisegundo
     const slotJugado = turnoActivoSlot;
 
-    fetch(`?c=partida&a=ValidarPalabra&palabra=${palabra}&id_partida=${ID_PARTIDA}`)
+    fetch(`?c=partida&a=ValidarPalabra&palabra=${palabra}&id_partida=${ID_PARTIDA}&tiempo=${tiempoRestante}`)
         .then(respuesta => respuesta.json())
         .then(datos => {
             if (datos.existe) {
@@ -445,11 +561,17 @@ function validarPalabra(palabra, divPalabra) {
                     divPalabra.classList.add('correcta');
                 }
 
+                // Dispara la animación para el jugador local
+                if (datos.puntos_obtenidos > 0) {
+                    mostrarAnimacionPuntos(slotJugado, datos.puntos_obtenidos);
+                }
+
                 // Le decimos a los demás que congelen esta palabra
                 socket.send(JSON.stringify({
                     tipo: 'palabra_acertada',
                     slot: slotJugado,
                     palabra: palabra,
+                    puntos: datos.puntos_obtenidos,
                     id_partida: ID_PARTIDA
                 }));
                 
@@ -457,20 +579,27 @@ function validarPalabra(palabra, divPalabra) {
                 
             }else {
                 // -- ANIMACIÓN DE FALLO --
-                    
+                    sillasTemblando[slotJugado] = true; // Activa el recuerdo del temblor
                 if (divPalabra) {
                     // Le volvemos a poner la clase para que inicie la animación desde cero
                     divPalabra.classList.add('fallo');
                         
                     // Se la quitamos pasados 400ms (lo que dura la animación en CSS)
                     setTimeout(() => {
-                        divPalabra.classList.remove('fallo');
+                        sillasTemblando[slotJugado] = false; // Lo apaga
+
+                        // Busca el elemento de nuevo por si se recargó el HTML
+                        const divActualizado = document.getElementById(`palabra-slot-${slotJugado}`);
+                        if (divActualizado) {
+                            divActualizado.classList.remove('fallo');
+                        }
                     }, 400);
                 }
                 // Le decimos a los demás que hagan temblar esta silla
                 socket.send(JSON.stringify({
                     tipo: 'palabra_fallada',
                     slot: slotJugado,
+                    puntos: datos.puntos_obtenidos,
                     id_partida: ID_PARTIDA
                 }));
             }
@@ -505,7 +634,7 @@ function iniciarRelojBomba() {
     
     // Pintamos el primer segundo de inmediato
     if (txtTiempo) {
-        txtTiempo.innerText = `⏳ ${tiempoRestante}s`;
+        txtTiempo.innerText = ` ${tiempoRestante}s`;
         txtTiempo.style.display = 'block'; // Nos aseguramos de que sea visible
     }
 
@@ -533,10 +662,36 @@ function iniciarRelojBomba() {
         } else {
             // Si no es cero, actualizamos el texto
             if (txtTiempo) {
-                txtTiempo.innerText = `⏳ ${tiempoRestante}s`;
+                txtTiempo.innerText = ` ${tiempoRestante}s`;
             }
         }
     }, 1000); // Se ejecuta cada 1000 milisegundos (1 segundo)
+}
+
+// Genera un texto flotante con los puntos ganados sobre el avatar
+function mostrarAnimacionPuntos(slot, puntos) {
+    const avatarWrapper = document.querySelector(`.slot-${slot} .avatar-wrapper`);
+    
+    if (avatarWrapper) {
+        // Se calculan las coordenadas del avatar en la pantalla
+        const rect = avatarWrapper.getBoundingClientRect();
+        
+        const textoPuntos = document.createElement('div');
+        textoPuntos.className = 'puntos-flotantes';
+        textoPuntos.innerText = `+${puntos}`;
+        
+        // Se posiciona absolutamente basándose en el avatar
+        textoPuntos.style.left = `${rect.left + window.scrollX + (rect.width / 2)}px`;
+        textoPuntos.style.top = `${rect.top + window.scrollY - 10}px`;
+        
+        // Se añade al body para que la recarga de la mesa no lo elimine
+        document.body.appendChild(textoPuntos);
+        
+        // Se elimina pasados 2.5 segundos
+        setTimeout(() => {
+            textoPuntos.remove();
+        }, 2500);
+    }
 }
 
 

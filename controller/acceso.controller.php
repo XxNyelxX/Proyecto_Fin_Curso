@@ -40,8 +40,8 @@ class AccesoController {
     // Acción para mostrar el formulario de EDITAR PERFIL
     public function EditarPerfil() {
         // SEGURIDAD: Si no está logueado fuera
-        if (!isset($_SESSION['user_id'])) {
-            header("Location: ?c=acceso&a=Entrar");
+        if (!isset($_SESSION['user_id']) || $_SESSION['user_id'] <= 16) {
+            header("Location: index.php");
             exit();
         }
 
@@ -140,6 +140,8 @@ class AccesoController {
                 $errores['username'] = "O nome de usuario debe ter polo menos 3 caracteres.";
             } else if (strlen($username) > 50) {
                 $errores['username'] = "O nome de usuario non pode ter máis de 50 caracteres.";
+            } else if (stripos(trim($username), 'anónimo') === 0 || stripos(trim($username), 'anonimo') === 0) {
+                $errores['username'] = "Non podes usar a palabra 'Anónimo' como nome.";
             }
 
             /* --- VALIDACIÓN DEL EMAIL --- */
@@ -228,8 +230,8 @@ class AccesoController {
     // Acción para procesar el formulario de edición
     public function ActualizarPerfil() {
         // SEGURIDAD: Si no está logueado fuera
-        if (!isset($_SESSION['user_id'])) {
-            header("Location: ?c=acceso&a=Entrar");
+        if (!isset($_SESSION['user_id']) || $_SESSION['user_id'] <= 16) {
+            header("Location: index.php");
             exit();
         }
         // Bloqueo si intentan entrar copiando la URL en vez de usar el formulario
@@ -264,6 +266,8 @@ class AccesoController {
                     $errores['nuevo_username'] = "O nome de usuario non pode ter máis de 50 caracteres.";
                 } else if ($username == $_SESSION['username']) {
                     $errores['nuevo_username'] = "Puxeche o mesmo nome.";
+                } else if (stripos(trim($username), 'anónimo') === 0 || stripos(trim($username), 'anonimo') === 0) {
+                    $errores['nuevo_username'] = "Non podes usar a palabra 'Anónimo' como nome.";
                 }else{
                     // Le pasamos el nombre. Como tu método pedía también email, le pasamos un string vacío para el email
                     $usuarioExistente = $this->modelo->ComprobarUsuarioDuplicado($username, '');

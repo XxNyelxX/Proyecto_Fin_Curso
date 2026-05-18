@@ -19,6 +19,7 @@ CREATE TABLE usuarios (
     foto VARCHAR(255) DEFAULT 'default.png',
     puntuacion_mensual BIGINT DEFAULT 0,
     mes_ultimo_reinicio TINYINT DEFAULT 1,
+    anho_ultimo_reinicio INT DEFAULT 2026,
     FOREIGN KEY (id_rol) REFERENCES roles(id_rol) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -32,7 +33,7 @@ CREATE TABLE partidas (
     fecha_partida TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     visibilidad VARCHAR(10) DEFAULT 'publica',
     contrasena VARCHAR(15) DEFAULT '',
-    tiempo_bomba INT DEFAULT 5,
+    tiempo_bomba INT DEFAULT 10,
     turnos_silaba INT DEFAULT 2,
     vidas INT DEFAULT 2,
     num_jugadores TINYINT DEFAULT 1,
@@ -100,29 +101,3 @@ INSERT INTO usuarios (id_usuario, username, email, contrasena, foto, id_rol) VAL
 (14, 'Anónimo 14', 'anonimo14@test.local', 'anonimo', 'default.png', 2),
 (15, 'Anónimo 15', 'anonimo15@test.local', 'anonimo', 'default.png', 2),
 (16, 'Anónimo 16', 'anonimo16@test.local', 'anonimo', 'default.png', 2);
-
---Usuarios prueba
--- INSERT INTO usuarios (username, email, contrasena, id_rol, puntuacion_mensual, mes_ultimo_reinicio) VALUES 
---     ('JugadorTest1', 'test1@gbomb.com', 'clavefalsa123', 1, 45000, 3),
---     ('JugadorTest2', 'test2@gbomb.com', 'clavefalsa123', 2, 120500, 3),
---     ('JugadorTest3', 'test3@gbomb.com', 'clavefalsa123', 2, 8900, 3),
---     ('JugadorTest4', 'test4@gbomb.com', 'clavefalsa123', 2, 340000, 3),
---     ('JugadorTest5', 'test5@gbomb.com', 'clavefalsa123', 2, 21500, 3),
---     ('JugadorTest6', 'test6@gbomb.com', 'clavefalsa123', 2, 567000, 3),
---     ('JugadorTest7', 'test7@gbomb.com', 'clavefalsa123', 2, 0, 3),
---     ('JugadorTest8', 'test8@gbomb.com', 'clavefalsa123', 2, 1200, 3),
---     ('JugadorTest9', 'test9@gbomb.com', 'clavefalsa123', 2, 98000, 3),
---     ('JugadorTest10', 'test10@gbomb.com', 'clavefalsa123', 2, 43200, 3),
---     ('JugadorTest11', 'test11@gbomb.com', 'clavefalsa123', 2, 150000, 3),
---     ('JugadorTest12', 'test12@gbomb.com', 'clavefalsa123', 2, 87600, 3),
---     ('JugadorTest13', 'test13@gbomb.com', 'clavefalsa123', 2, 23000, 3),
---     ('JugadorTest14', 'test14@gbomb.com', 'clavefalsa123', 2, 765000, 3),
---     ('JugadorTest15', 'test15@gbomb.com', 'clavefalsa123', 2, 11000, 3),
---     ('JugadorTest16', 'test16@gbomb.com', 'clavefalsa123', 2, 54300, 3),
---     ('JugadorTest17', 'test17@gbomb.com', 'clavefalsa123', 2, 290000, 3),
---     ('JugadorTest18', 'test18@gbomb.com', 'clavefalsa123', 2, 4000, 3),
---     ('JugadorTest19', 'test19@gbomb.com', 'clavefalsa123', 2, 67800, 3),
---     ('JugadorTest20', 'test20@gbomb.com', 'clavefalsa123', 2, 999999, 3);
-
---Borrar usuarios prueba
-    -- DELETE FROM usuarios WHERE username LIKE 'JugadorTest%';
