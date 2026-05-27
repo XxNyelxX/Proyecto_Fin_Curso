@@ -50,7 +50,7 @@ function actualizarLista() {
                         `;
                     }
 
-                    // Preparamos el botón principal (si es privada y no está llena, abre modal)
+                    // Desplegable de contraseña en buscar partida (si es privada y no está llena, abre modal)
                     let botonPrincipal = '';
                     if (p.visibilidad === 'privada' && !llena) {
                         botonPrincipal = `

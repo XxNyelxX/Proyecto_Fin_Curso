@@ -1,7 +1,7 @@
 <?php
-// Registramos el cargador automático
+// Registra el autoload
 spl_autoload_register(function ($class) {
-    // 1. Construimos el nombre del archivo. 
+    // Construlle el nombre del archivo. 
     $root = __DIR__ ;
     $archivo = '';
 
@@ -9,27 +9,27 @@ spl_autoload_register(function ($class) {
     if ($class === 'Database') {
         $archivo = $root . '/bd/database.php';
     }
-    // CASO 2: Si es un Controlador (ej: LoginController)
+    // CASO 2: Si es un Controlador
     elseif (strpos($class, 'Controller') !== false) {
-        // Quitamos la palabra 'Controller' (LoginController -> Alumno)
+        // Quita la palabra 'Controller'
         $nombre_limpio = str_replace('Controller', '', $class);
-        // Lo pasamos a minúsculas y añadimos la extensión (Alumno -> alumno.controller.php)
+        // Se pasa a minúsculas y añadimos la extensión
         $archivo = $root . '/controller/' . strtolower($nombre_limpio) . '.controller.php';
     }
-    // CASO 3: Si es un DAO (ej: UsuarioDAO)
+    // CASO 3: Si es un DAO
     elseif (strpos($class, 'DAO') !== false) {
-        // Buscamos en model/ y ponemos la primera letra minúscula (UsuarioDAO -> usuarioDAO.php)
+        // Buscamos en model/ y ponemos la primera letra minúscula
         $archivo = $root . '/model/' . lcfirst($class) . '.php';
     }
     // CASO 4: Si es una Entidad (clases simples como Usuario, Partida)
     else {
-        // Buscamos en la carpeta de entidades
+        // Busca en la carpeta de entidades
         $archivo = $root . '/model/entidades/' . strtolower($class) . '.php';
     }
 
-    // 2. Comprobamos si el archivo existe
+    // Comprueba si el archivo existe
     if (file_exists($archivo)) {
-        // 3. Si existe, lo incluimos
+        // Si existe, lo mete
         require_once $archivo;
     }else {
         echo "ERROR: No encuentro el archivo " . $archivo . "<br>";

@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
     //Botones de iniciar sesión y registrarse
     const dropdownMenu = document.getElementById('dropdownMenu');
 
-    // Verificamos que los elementos existan en la página actual para evitar errores
+    // Verifica que los elementos existan en la página actual para evitar errores
     if (btnUserMenu && dropdownMenu) {
         
         btnUserMenu.addEventListener('click', (e) => {

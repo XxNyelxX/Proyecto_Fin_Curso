@@ -1,8 +1,8 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Buscamos el input oculto
+    // Busca el input oculto
     const inputSubida = document.getElementById('subida-oculta');
     
-    // Solo ejecutamos el código si estamos en la pantalla de Editar Perfil
+    // Solo ejecuta el código si esta en la pantalla de Editar Perfil
     if (inputSubida) {
         inputSubida.addEventListener('change', function(e) {
             let label = document.querySelector('label[for="subida-oculta"]');
@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Si el usuario ha seleccionado un archivo
             if (e.target.files.length > 0) {
                 
-                // Cambiamos el texto
+                // Cambia el texto
                 label.textContent = "FOTO LISTA";
             } else {
                 // Si el usuario abre la ventana y cancela, vuelve al estado original

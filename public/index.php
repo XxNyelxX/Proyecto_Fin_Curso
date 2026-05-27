@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-//Llamo a autoload
+//Llada a autoload
 require_once '../autoload.php';
 
 //Si no viene ningún controlador en la URL (?c=...), usamos Inicio por defecto

@@ -15,14 +15,14 @@ class Database
     {
         if (self::$con == null) {
             try {
-                // Añadimos charset=utf8mb4 al final del string de conexión
+                //charset=utf8mb4 al final del string de conexión
                 self::$con = new PDO(
                     "mysql:host=" . self::$dbHost . ";dbname=" . self::$dbName . ";charset=utf8mb4",
                     self::$dbUsername,
                     self::$dbUserPassword
                 );
                 
-                // Forzamos a PDO a mostrar los errores si algo falla
+                // Fuerza a PDO a mostrar los errores si algo falla
                 self::$con->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                 
             } catch (PDOException $e) {

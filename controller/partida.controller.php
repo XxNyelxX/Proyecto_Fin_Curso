@@ -21,7 +21,7 @@ class PartidaController {
             $nombre_defecto = "Sala de " . rand(100, 999);
         }
 
-        // Cargamos la vista del formulario
+        // Carga la vista del formulario
         require_once '../view/header.php';
         require_once '../view/partida/crear-form.php';
         require_once '../view/footer.php';
@@ -37,7 +37,7 @@ class PartidaController {
         $errores = [];
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            // Recogemos y saneamos los datos
+            // Recoge y sanea los datos
             $nombre = isset($_POST['nombre']) ? trim($_POST['nombre']) : '';
             $visibilidad = isset($_POST['visibilidad']) ? $_POST['visibilidad'] : 'publica';
             $contrasena = isset($_POST['contrasena']) ? trim($_POST['contrasena']) : '';
@@ -49,7 +49,7 @@ class PartidaController {
             
             $es_invitado = false;
             if (!isset($_SESSION['user_id'])) {
-                $id_host = 1; // Al crearla, le damos automáticamente el puesto de Anónimo 1
+                $id_host = 1; // Al crearla, se le da automáticamente el puesto de Anónimo 1
                 $es_invitado = true;
             } else {
                 $id_host = $_SESSION['user_id'];
@@ -96,22 +96,22 @@ class PartidaController {
                 $errores['db'] = "O máximo de xogadores debe estar entre 2 e 16.";
             }
 
-            // Solo comprobamos si el usuario existe si NO es un invitado
+            // Solo comprueba si el usuario existe si NO es un invitado
             if (!$es_invitado && !$this->modelo->ExisteUsuario($id_host)) {
                 $errores['db'] = "O usuario non é válido ou a sesión expirou.";
             }
 
             if (empty($errores)) {
-                // Llamamos al modelo para insertar en la BD
+                // Llama al modelo para insertar en la BD
                 $id_partida = $this->modelo->CrearPartida($nombre, $visibilidad, $contrasena, $tiempo, $turnos, $vidas, $max_jugadores, $id_host);
 
                 if ($id_partida) {
-                    // Creamos la sesión del invitado justo antes de entrar
+                    // Crea la sesión del invitado justo antes de entrar
                     if ($es_invitado) {
                         $_SESSION['user_id'] = 1;
                         $_SESSION['username'] = 'Anónimo 1';
                     }
-                    // Si se creó con éxito, vamos a la sala
+                    // Si se creó con éxito, va a la sala
                     header("Location: ?c=partida&a=Acceder&id=" . $id_partida);
                     exit();
                 } else {
@@ -119,14 +119,14 @@ class PartidaController {
                 }
             }
 
-            // Si hay errores y recargamos, volvemos a generar la variable por si acaso
+            // Si hay errores y recarga, vuelve a generar la variable por si acaso
             if (isset($_SESSION['username'])) {
                 $nombre_defecto = "Sala de " . strtoupper($_SESSION['username']);
             } else {
                 $nombre_defecto = "Sala de " . rand(100, 999);
             }
 
-            // Si llegamos aquí es porque hubo errores, recargamos la vista
+            // Si llega aquí es porque hubo errores, recarga la vista
             require_once '../view/header.php';
             require_once '../view/partida/crear-form.php';
             require_once '../view/footer.php';
@@ -238,11 +238,11 @@ class PartidaController {
         $jugadores = $this->modelo->ObtenerJugadoresEnPartida($id_partida);
 
         if ($partida) {
-            // Si la partida ya ha empezado, le quitamos las vidas si se va
+            // Si la partida ya ha empezado, le quita las vidas si se va
             if ($partida['estado'] === 'iniciada') {
                 $this->modelo->EliminarVidasPorAbandono($id_partida, $id_usuario);
 
-                // Volvemos a pedir la lista para ver las vidas actualizadas
+                // Vuelve a pedir la lista para ver las vidas actualizadas
                 $jugadores_actualizados = $this->modelo->ObtenerJugadoresEnPartida($id_partida);
                 $vivos = 0;
                 $ultimo_vivo = null;
@@ -255,7 +255,7 @@ class PartidaController {
                     }
                 }
                 
-                // Si solo queda 1 (o ninguno), se acaba la partida
+                // Si solo queda un jugador o ninguno, se acaba la partida
                 if ($vivos <= 1) {
                     if ($vivos == 1 && $ultimo_vivo) {
                         $this->modelo->DeclararGanador($id_partida, $ultimo_vivo);
@@ -281,17 +281,17 @@ class PartidaController {
                         $this->modelo->FinalizarPartida($id_partida);
                     }
                 }
-                // Borramos al jugador solo si no ha empezado
+                // Borra al jugador solo si no ha empezado
                 $this->modelo->SalirDePartida($id_partida, $id_usuario);
             }
         }
 
-        // Si es un anónimo (ID 1-16), destruimos la sesión al salir
+        // Si es un anónimo (ID 1-16), destruye la sesión al salir
         if ($id_usuario >= 1 && $id_usuario <= 16) {
             session_destroy();
         }
 
-        // Lo mandamos al inicio
+        // Lo manda al inicio
         header("Location: index.php");
         exit();
     }
@@ -305,7 +305,7 @@ class PartidaController {
         }
 
         $id_partida = (int)$_GET['id'];
-        $id_usuario = $_SESSION['user_id']; // Usamos tu propia ID
+        $id_usuario = $_SESSION['user_id']; // Usa la propia ID
 
         $partida = $this->modelo->ObtenerPartidaPorId($id_partida);
         $jugadores = $this->modelo->ObtenerJugadoresEnPartida($id_partida);
@@ -314,7 +314,7 @@ class PartidaController {
             $total_actual = count($jugadores);
             
             if ($total_actual < $partida['max_jugadores']) {
-                // Hay hueco, te clonamos metiendo tu misma ID
+                // Si hay hueco, lo clona metiendo su misma ID
                 $this->modelo->UnirJugadorAPartida($id_partida, $id_usuario);
                 
                 echo json_encode([
@@ -339,11 +339,11 @@ class PartidaController {
 
         $id_partida = (int)$_GET['id'];
         
-        // Sacamos los datos de la Base de Datos
+        // Saca los datos de la Base de Datos
         $partida = $this->modelo->ObtenerPartidaPorId($id_partida);
         $jugadores = $this->modelo->ObtenerJugadoresEnPartida($id_partida);
 
-        // Los enviamos empaquetados para que JavaScript los lea
+        // Los envía empaquetados para que JavaScript los lea
         echo json_encode([
             'id_host' => $partida['id_host'],
             'max_jugadores' => $partida['max_jugadores'],
@@ -360,7 +360,7 @@ class PartidaController {
     public function ExpulsarJugador() {
         header('Content-Type: application/json');
 
-        // Comprobamos que nos mandan los datos
+        // Comprueba que se mandan los datos
         if (!isset($_GET['id_partida']) || !isset($_GET['id_usuario'])) {
             echo json_encode(['status' => 'error', 'mensaje' => 'Datos incompletos']);
             return;
@@ -369,7 +369,7 @@ class PartidaController {
         $id_partida = (int)$_GET['id_partida'];
         $id_expulsado = (int)$_GET['id_usuario'];
 
-        // SEGURIDAD: Comprobamos que el que pide esto es el Host real
+        // SEGURIDAD: Comprueba que el que pide esto es el Host real
         $partida = $this->modelo->ObtenerPartidaPorId($id_partida);
         if ($partida['id_host'] != $_SESSION['user_id']) {
             echo json_encode(['status' => 'error', 'mensaje' => 'Non tes permisos']);
@@ -382,7 +382,7 @@ class PartidaController {
     }
 
     public function Empezar() {
-        //Le dice al navegador que vamos a enviar json y no una web
+        // Le dice al navegador que va a enviar json y no una web
         header('Content-Type: application/json');
 
         if (!isset($_SESSION['user_id']) || !isset($_GET['id'])) {
@@ -398,10 +398,10 @@ class PartidaController {
             
             $silaba_inicial = $this->GenerarSilabaAleatoria();
 
-            // Llamamos a la función que creaste en el modelo
+            // Llama a la función del modelo
             $this->modelo->IniciarPartida($id_partida, $silaba_inicial, $partida['vidas']);
             
-            // Volvemos a la sala (que ahora estará en modo "iniciada")
+            // Vuelve a la sala (que ahora estará en modo "iniciada")
             echo json_encode(['status' => 'ok']);
             return;
         } else {
@@ -411,28 +411,28 @@ class PartidaController {
 
     private function GenerarSilabaAleatoria() {
         $silabas = [
-            // Básicas (100)
+            // Básicas
             "MA", "PA", "TA", "CA", "LA", "SA", "DA", "BA", "VA", "RA", "NA", "FA", "JA", "GA", "CHA", "LLA", "NHA", "ZA", "XA",
             "ME", "PE", "TE", "CE", "LE", "SE", "DE", "BE", "VE", "RE", "NE", "FE", "JE", "GE", "CHE", "LLE", "NHE", "ZE", "XE",
             "MI", "PI", "TI", "CI", "LI", "SI", "DI", "BI", "VI", "RI", "NI", "FI", "JI", "GI", "CHI", "LLI", "NHI", "ZI", "XI",
             "MO", "PO", "TO", "CO", "LO", "SO", "DO", "BO", "VO", "RO", "NO", "FO", "JO", "GO", "CHO", "LLO", "NHO", "ZO", "XO",
             "MU", "PU", "TU", "CU", "LU", "SU", "DU", "BU", "VU", "RU", "NU", "FU", "JU", "GU", "CHU", "LLU", "NHU", "ZU", "XU",
             
-            // Inversas (35)
+            // Inversas
             "AL", "EL", "IL", "OL", "UL", "AR", "ER", "IR", "OR", "UR", "AS", "ES", "IS", "OS", "US", 
             "AN", "EN", "IN", "ON", "UN", "AM", "EM", "IM", "OM", "UM", "AC", "EC", "IC", "OC", "UC", "AD", "ED", "ID", "OD", "UD",
             
-            // Pares de consonantes (30)
+            // Pares de consonantes
             "CH", "LL", "NH", "RR", "PR", "TR", "CR", "BR", "GR", "FR", "BL", "CL", "FL", "GL", "PL", 
             "MB", "MP", "ND", "NT", "NC", "NG", "ST", "SP", "SC", "RS", "RT", "RC", "RD", "RN", "RM",
             
-            // Trabadas (55)
+            // Trabadas
             "TRA", "TRE", "TRI", "TRO", "TRU", "BRA", "BRE", "BRI", "BRO", "BRU", "CRA", "CRE", "CRI", "CRO", "CRU", 
             "PRA", "PRE", "PRI", "PRO", "PRU", "GRA", "GRE", "GRI", "GRO", "GRU", "FRA", "FRE", "FRI", "FRO", "FRU",
             "BLA", "BLE", "BLI", "BLO", "BLU", "CLA", "CLE", "CLI", "CLO", "CLU", "PLA", "PLE", "PLI", "PLO", "PLU", 
             "FLA", "FLE", "FLI", "FLO", "FLU", "GLA", "GLE", "GLI", "GLO", "GLU",
             
-            // Terminaciones y compuestas de 3 letras (127)
+            // Terminaciones y compuestas de 3 letras
             "CON", "COM", "CAN", "CAM", "CEN", "CEM", "CIN", "CIM", "COL", "CAL", "CUL", "CEL", "CIL",
             "DES", "DIS", "DAS", "DOS", "DUS", "DAN", "DEN", "DIN", "DON", "DUN", "DAL", "DEL", "DIL",
             "ENT", "EST", "AST", "IST", "OST", "UST",
@@ -451,7 +451,7 @@ class PartidaController {
     }
 
     public function ValidarPalabra() {
-        // Obligamos a PHP a devolver JSON
+        // Obliga a PHP a devolver JSON
         header('Content-Type: application/json');
 
         if (isset($_GET['palabra']) && isset($_GET['id_partida'])) {
@@ -459,7 +459,7 @@ class PartidaController {
             $id_partida = (int)$_GET['id_partida'];
             $tiempo_restante = (int)$_GET['tiempo'];
             
-            // Quitamos tildes por si acaso
+            // Quita tildes por si acaso
             $sustituciones = ['á'=>'a', 'é'=>'e', 'í'=>'i', 'ó'=>'o', 'ú'=>'u', 'ï'=>'i', 'ü'=>'u'];
             $palabra_usuario = strtr($palabra_usuario, $sustituciones);
 
@@ -467,25 +467,25 @@ class PartidaController {
             $ruta_diccionario = __DIR__ . '/../data/diccionario.json';
 
             if (file_exists($ruta_diccionario)) {
-                // Leemos el diccionario
+                // Lee el diccionario
                 $json_data = file_get_contents($ruta_diccionario);
                 
                 // Para hacerlo más rápido
-                // primero decodificamos el JSON a un array de PHP.
+                // primero decodifica el JSON a un array de PHP.
                 $array_palabras = json_decode($json_data, true);
 
-                // Comprobamos si la palabra existe en el array
+                // Comprueba si la palabra existe en el array
                 if (is_array($array_palabras) && in_array($palabra_usuario, $array_palabras)) {
-                    // Comprobamos en la BD si la palabra ya fue usada en esta partida
+                    // Comprueba en la BD si la palabra ya fue usada en esta partida
                     $ya_usada = $this->modelo->PalabraYaUsada($id_partida, $palabra_usuario);
                     
                     if (!$ya_usada) {
                         $existe = true;
 
-                        // Obtenemos los datos actuales de la partida
+                        // Obtiene los datos actuales de la partida
                         $partida = $this->modelo->ObtenerPartidaPorId($id_partida);
                         
-                        // Obtenemos los jugadores para saber cuántos son
+                        // Obtiene los jugadores para saber cuántos son
                         $jugadores = $this->modelo->ObtenerJugadoresEnPartida($id_partida);
                         $total_jugadores = count($jugadores);
                         
@@ -493,15 +493,15 @@ class PartidaController {
                             $puntos_letras = mb_strlen($palabra_usuario, 'UTF-8') * 10;
                             $puntos_tiempo = $tiempo_restante * 100;
                             
-                            // Si el tiempo restante llega como 0, se asegura un mínimo multiplicador de 1 para no dar 0 puntos
+                            // Si el tiempo restante llega como 0, se asegura un mínimo multiplicador para no dar 0 puntos
                             if ($puntos_tiempo <= 0) {
                                 $puntos_tiempo = 100;
                             }
                             
                             $puntos_totales = $puntos_letras * $puntos_tiempo;
 
-                            // Guardamos el registro de la jugada en la tabla partidas_jugadas
-                            // Usamos la sílaba que estaba activa ANTES del cambio
+                            // Guarda el registro de la jugada en la tabla partidas_jugadas
+                            // Usa la sílaba que estaba activa ANTES del cambio
                             $this->modelo->GuardarJugada(
                                 $id_partida, 
                                 $_SESSION['user_id'], 
@@ -510,24 +510,24 @@ class PartidaController {
                                 $puntos_totales
                             );
 
-                            // Sumamos los puntos al perfil global del usuario
+                            // Suma los puntos al perfil global del usuario
                             $this->modelo->SumarPuntosUsuario($_SESSION['user_id'], $puntos_totales);
 
-                            // Calculamos el siguiente turno
+                            // Calcula el siguiente turno
                             $siguiente_turno = ($partida['turno_actual'] + 1) % $total_jugadores;
                             $vueltas = 0;
 
-                            // Mientras el siguiente jugador tenga 0 vidas, seguimos saltando
+                            // Mientras el siguiente jugador tenga 0 vidas, sigue saltando
                             while ($jugadores[$siguiente_turno]['vidas_restantes'] <= 0 && $vueltas < $total_jugadores) {
                                 $siguiente_turno = ($siguiente_turno + 1) % $total_jugadores;
                                 $vueltas++;
                             }
                             
-                            // Generamos la nueva sílaba y reseteamos el contador
+                            // Genera la nueva sílaba y resetea el contador
                             $nueva_silaba = $this->GenerarSilabaAleatoria();
                             $nuevo_contador = 1;
                             
-                            // Guardamos en la BD
+                            // Guarda en la BD
                             $this->modelo->AvanzarTurno($id_partida, $siguiente_turno, $nueva_silaba, $nuevo_contador);
                         }
                     }
@@ -558,20 +558,20 @@ class PartidaController {
             $total_jugadores = count($jugadores);
 
             if ($partida && $total_jugadores > 0) {
-                // Si el turno actual en la BD ya no es el que el Host nos dice, 
-                // lo ignoramos para no restarle vida al jugador equivocado.
+                // Si el turno actual en la BD ya no es el que el Host dice, 
+                // lo ignora para no restarle vida al jugador equivocado.
                 if ($partida['turno_actual'] !== $turno_esperado) {
                     echo json_encode(['status' => 'ignorar']);
                     exit;
                 }
 
-                // Ahora usamos el id_partida_jugador en lugar del id_usuario
+                // Ahora usa el id_partida_jugador en lugar del id_usuario
                 $id_pj_afectado = $jugadores[$partida['turno_actual']]['id_partida_jugador'];
 
-                // Simulamos la resta de vida que va a sufrir para que el bucle lo tenga en cuenta
+                // Simula la resta de vida que va a sufrir para que el bucle lo tenga en cuenta
                 $jugadores[$partida['turno_actual']]['vidas_restantes'] -= 1;
 
-                // Contamos cuántos siguen vivos después de que alguien pierda
+                // Cuenta cuántos siguen vivos después de que alguien pierda
                 $supervivientes = [];
                 foreach ($jugadores as $j) {
                     if ($j['vidas_restantes'] > 0) {
@@ -583,21 +583,21 @@ class PartidaController {
                 if (count($supervivientes) === 1) {
                     $ganador = $supervivientes[0];
                     
-                    // Primero restamos la vida al que perdió
+                    // Primero resta la vida al que perdió
                     $this->modelo->ProcesarExplosion($id_partida, $id_pj_afectado, $partida['turno_actual'], $partida['silaba_actual'], $partida['contador_silaba']);
                     
-                    // Luego declaramos al ganador
+                    // Luego declara al ganador
                     $this->modelo->DeclararGanador($id_partida, $ganador['id_usuario']);
                     
                     echo json_encode(['status' => 'finalizada', 'ganador' => $ganador['username']]);
                     exit;
                 }
                 
-                // Calculamos el siguiente turno
+                // Calcula el siguiente turno
                 $siguiente_turno = ($partida['turno_actual'] + 1) % $total_jugadores;
                 $vueltas = 0;
                 
-                // Mientras el siguiente jugador tenga 0 vidas, seguimos saltando
+                // Mientras el siguiente jugador tenga 0 vidas, sigue saltando
                 while ($jugadores[$siguiente_turno]['vidas_restantes'] <= 0 && $vueltas < $total_jugadores) {
                     $siguiente_turno = ($siguiente_turno + 1) % $total_jugadores;
                     $vueltas++;
@@ -615,7 +615,7 @@ class PartidaController {
                     $nuevo_contador = 1;
                 }
                 
-                // Ejecutamos en la BD
+                // Ejecuta en la BD
                 $exito = $this->modelo->ProcesarExplosion($id_partida, $id_pj_afectado, $siguiente_turno, $nueva_silaba, $nuevo_contador);
                 
                 echo json_encode(['status' => $exito ? 'ok' : 'error']);
@@ -625,7 +625,7 @@ class PartidaController {
     }
 
     public function Unirse() {
-        // Pedimos al modelo todas las partidas con estado 'esperando'
+        // Pide al modelo todas las partidas con estado 'esperando'
         $partidas = $this->modelo->ListarPartidasAbiertas();
 
         require_once '../view/header.php';
@@ -686,7 +686,7 @@ class PartidaController {
             return;
         }
 
-        // Comprueba que la contraseña coincida (asumiendo que en la BD se llama 'contrasena')
+        // Comprueba que la contraseña coincida
         if ($partida['visibilidad'] === 'privada' && $partida['contrasena'] === $pass_usuario) {
             echo json_encode(['status' => 'ok']);
         } else {
@@ -713,7 +713,7 @@ class PartidaController {
             require_once '../view/partida/sala.php';
             require_once '../view/footer.php';
         } else {
-            // Si la partida no existe, volvemos al inicio
+            // Si la partida no existe, vuelve al inicio
             header("Location: index.php");
             exit();
         }

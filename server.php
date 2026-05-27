@@ -4,12 +4,12 @@ use Ratchet\Http\HttpServer;
 use Ratchet\WebSocket\WsServer;
 use MyApp\Chat;
 
-// Incluimos el cargador automático de Composer
+// Inclulle el cargador automático de Composer
 require __DIR__ . '/vendor/autoload.php';
 // Incluimos la clase Chat
 require __DIR__ . '/socket/Chat.php';
 
-// Configuramos el servidor en el puerto 8080
+// Configura el servidor en el puerto 8080
 $server = IoServer::factory(
     new HttpServer(
         new WsServer(

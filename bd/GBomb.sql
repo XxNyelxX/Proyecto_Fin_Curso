@@ -1,4 +1,4 @@
--- Creamos la base de datos, usamos el juego de carcateres estandar utf8, mb4 es más potente y así me curo en salud, 
+-- Crea la base de datos, usa el juego de carcateres estandar utf8, mb4 es más potente y así me curo en salud, 
 -- unicode hace que el orden alfabético sea el correcto y ci hace que no distinga mayusculas y minúsculas para no repetir palabra
 CREATE DATABASE IF NOT EXISTS gbomb DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE gbomb;
@@ -71,7 +71,7 @@ CREATE TABLE partidas_jugadas (
     FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- 6. Tabla DICCIONARIO_LOCAL
+-- Tabla DICCIONARIO_LOCAL
 CREATE TABLE diccionario_local (
     id_palabra INT AUTO_INCREMENT PRIMARY KEY,
     palabra VARCHAR(100) NOT NULL UNIQUE,

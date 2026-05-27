@@ -19,12 +19,15 @@ try {
 
     // Sentencias SQL completas
     $sql = "
-        CREATE TABLE IF NOT EXISTS roles (
+        CREATE DATABASE IF NOT EXISTS gbomb DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+        USE gbomb;
+
+        CREATE TABLE roles (
             id_rol TINYINT AUTO_INCREMENT PRIMARY KEY,
             nombre_rol VARCHAR(25) NOT NULL
         );
 
-        CREATE TABLE IF NOT EXISTS usuarios (
+        CREATE TABLE usuarios (
             id_usuario INT AUTO_INCREMENT PRIMARY KEY,
             username VARCHAR(50) NOT NULL UNIQUE,
             email VARCHAR(100) NOT NULL UNIQUE,
@@ -33,16 +36,17 @@ try {
             foto VARCHAR(255) DEFAULT 'default.png',
             puntuacion_mensual BIGINT DEFAULT 0,
             mes_ultimo_reinicio TINYINT DEFAULT 1,
+            anho_ultimo_reinicio INT DEFAULT 2026,
             FOREIGN KEY (id_rol) REFERENCES roles(id_rol) ON DELETE CASCADE ON UPDATE CASCADE
         );
 
-        CREATE TABLE IF NOT EXISTS partidas (
+        CREATE TABLE partidas (
             id_partida INT AUTO_INCREMENT PRIMARY KEY,
             nombre VARCHAR(60),
             fecha_partida TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             visibilidad VARCHAR(10) DEFAULT 'publica',
             contrasena VARCHAR(15) DEFAULT '',
-            tiempo_bomba INT DEFAULT 5,
+            tiempo_bomba INT DEFAULT 10,
             turnos_silaba INT DEFAULT 2,
             vidas INT DEFAULT 2,
             num_jugadores TINYINT DEFAULT 1,
@@ -58,7 +62,7 @@ try {
             FOREIGN KEY (id_ganador) REFERENCES usuarios(id_usuario) ON DELETE SET NULL ON UPDATE CASCADE
         );
 
-        CREATE TABLE IF NOT EXISTS partidas_jugadores (
+        CREATE TABLE partidas_jugadores (
             id_partida_jugador INT AUTO_INCREMENT PRIMARY KEY,
             id_partida INT NOT NULL,
             id_usuario INT NOT NULL,
@@ -67,7 +71,7 @@ try {
             FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE ON UPDATE CASCADE
         );
 
-        CREATE TABLE IF NOT EXISTS partidas_jugadas (
+        CREATE TABLE partidas_jugadas (
             id_jugada INT AUTO_INCREMENT PRIMARY KEY,
             id_partida INT NOT NULL,
             id_usuario INT NOT NULL,
@@ -78,19 +82,17 @@ try {
             FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE ON UPDATE CASCADE
         );
 
-        CREATE TABLE IF NOT EXISTS diccionario_local (
+        CREATE TABLE diccionario_local (
             id_palabra INT AUTO_INCREMENT PRIMARY KEY,
             palabra VARCHAR(100) NOT NULL UNIQUE,
             fecha_anadida TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
 
-        -- Inserción de Roles
-        INSERT IGNORE INTO roles (id_rol, nombre_rol) VALUES 
+        INSERT INTO roles (id_rol, nombre_rol) VALUES 
         (1, 'administrador'),
         (2, 'usuario');
 
-        -- Inserción de Usuarios anónimos
-        INSERT IGNORE INTO usuarios (id_usuario, username, email, contrasena, foto, id_rol) VALUES
+        INSERT INTO usuarios (id_usuario, username, email, contrasena, foto, id_rol) VALUES
         (1, 'Anónimo 1', 'anonimo1@test.local', 'anonimo', 'default.png', 2),
         (2, 'Anónimo 2', 'anonimo2@test.local', 'anonimo', 'default.png', 2),
         (3, 'Anónimo 3', 'anonimo3@test.local', 'anonimo', 'default.png', 2),
@@ -107,6 +109,7 @@ try {
         (14, 'Anónimo 14', 'anonimo14@test.local', 'anonimo', 'default.png', 2),
         (15, 'Anónimo 15', 'anonimo15@test.local', 'anonimo', 'default.png', 2),
         (16, 'Anónimo 16', 'anonimo16@test.local', 'anonimo', 'default.png', 2);
+
     ";
     
     // Ejecuta las sentencias

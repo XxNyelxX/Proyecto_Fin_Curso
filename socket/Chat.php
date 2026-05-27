@@ -10,7 +10,7 @@ class Chat implements MessageComponentInterface {
     protected $players;
 
     public function __construct() {
-        // Guardaremos a todos los jugadores conectados aquí
+        // Guarda a todos los jugadores conectados aquí
         $this->players = new \SplObjectStorage;
         echo "Servidor iniciado...\n";
     }
@@ -22,13 +22,13 @@ class Chat implements MessageComponentInterface {
     }
 
     public function onMessage(ConnectionInterface $from, $msg) {
-        // Traducimos el texto que llega a un array de PHP
+        // Traduce el texto que llega a un array de PHP
         $datos = json_decode($msg, true);
 
-        // Comprobamos si es un JSON válido y si trae un 'tipo' de acción
+        // Comprueba si es un JSON válido y si trae un 'tipo' de acción
         if ($datos !== null && isset($datos['tipo'])) {
             
-            // Evaluamos qué quiere hacer el usuario
+            // Evalua qué quiere hacer el usuario
             switch ($datos['tipo']) {
                 //Cuando alguien se mete
                 case 'conexion_nueva':
@@ -37,7 +37,7 @@ class Chat implements MessageComponentInterface {
                     
                     echo "Xogador {$datos['username']} uniuse a sala {$from->id_partida}\n";
                     
-                    // Preparamos el aviso con los datos del nuevo jugador
+                    // aviso con los datos del nuevo jugador
                     $aviso = [
                         'tipo' => 'nuevo_jugador',
                         'id_usuario' => $datos['id_usuario'],
@@ -46,7 +46,7 @@ class Chat implements MessageComponentInterface {
                         'es_host' => $datos['es_host']
                     ];
                     
-                    // Recorremos a TODOS los clientes conectados
+                    // Recorre a TODOS los clientes conectados
                     foreach ($this->players as $player) {
                         // Si el jugador está en ESTA MISMA SALA y NO ES el que acaba de entrar...
                         if (isset($player->id_partida) && $player->id_partida == $from->id_partida && $player !== $from) {
@@ -91,7 +91,7 @@ class Chat implements MessageComponentInterface {
                         'id_expulsado' => $datos['id_expulsado']
                     ];
                     
-                    // Avisamos a todos los de la sala de que alguien ha sido echado
+                    // Avisa a todos los de la sala de que alguien ha sido echado
                     foreach ($this->players as $player) {
                         if (isset($player->id_partida) && $player->id_partida == $from->id_partida && $player !== $from) {
                             $player->send(json_encode($aviso));
@@ -100,14 +100,14 @@ class Chat implements MessageComponentInterface {
                 break;
 
                 case 'tecleando':
-                    // Empaquetamos lo que está escribiendo el jugador
+                    // Empaqueta lo que está escribiendo el jugador
                     $aviso_teclado = [
                         'tipo' => 'tecleando',
                         'palabra' => $datos['palabra'],
                         'slot' => $datos['slot']
                     ];
                     
-                    // Repartimos las letras a todos los que estén en la MISMA partida, excepto al que las escribió
+                    // Reparte las letras a todos los que estén en la MISMA partida, excepto al que las escribió
                     foreach ($this->players as $player) {
                         if (isset($player->id_partida) && $player->id_partida == $datos['id_partida'] && $player !== $from) {
                             $player->send(json_encode($aviso_teclado));
@@ -123,7 +123,7 @@ class Chat implements MessageComponentInterface {
                         'puntos' => isset($datos['puntos']) ? $datos['puntos'] : 0
                     ];
                     
-                    // Repartimos el aviso a todos los de la sala, excepto al que acertó
+                    // Reparte el aviso a todos los de la sala, excepto al que acertó
                     foreach ($this->players as $player) {
                         if (isset($player->id_partida) && $player->id_partida == $datos['id_partida'] && $player !== $from) {
                             $player->send(json_encode($aviso_acierto));
@@ -137,7 +137,7 @@ class Chat implements MessageComponentInterface {
                         'slot' => $datos['slot']
                     ];
                     
-                    // Repartimos el aviso a todos los de la sala, excepto al que falló
+                    // Reparte el aviso a todos los de la sala, excepto al que falló
                     foreach ($this->players as $player) {
                         if (isset($player->id_partida) && $player->id_partida == $datos['id_partida'] && $player !== $from) {
                             $player->send(json_encode($aviso_fallo));
@@ -161,7 +161,7 @@ class Chat implements MessageComponentInterface {
                 'id_usuario' => $conn->id_usuario
             ];
 
-            // Avisamos al resto de jugadores de su sala
+            // Avisa al resto de jugadores de su sala
             foreach ($this->players as $player) {
                 if (isset($player->id_partida) && $player->id_partida == $conn->id_partida) {
                     $player->send(json_encode($aviso));

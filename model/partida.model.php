@@ -10,7 +10,6 @@ class PartidaModel {
 
     public function CrearPartida($nombre, $visibilidad, $contrasena, $tiempo, $turnos, $vidas, $max_jugadores, $id_host) {
         try {
-            // Añadimos max_jugadores a la consulta SQL
             $sql = "INSERT INTO partidas (nombre, visibilidad, contrasena, tiempo_bomba, turnos_silaba, vidas, num_jugadores, max_jugadores, id_host) 
                     VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?)";
             
@@ -18,13 +17,13 @@ class PartidaModel {
             
             $stm->execute([$nombre, $visibilidad, $contrasena, $tiempo, $turnos, $vidas, $max_jugadores, $id_host]);
             
-            // Guardamos el ID de la partida recién creada
+            // Guarda el ID de la partida recién creada
             $id_partida = $this->pdo->lastInsertId();
             
-            // Metemos al host automáticamente en la sala
+            // Mete al host automáticamente en la sala
             $this->AñadirJugadorAPartida($id_partida, $id_host);
             
-            // Devolvemos el ID al controlador para que pueda redireccionar a la sala
+            // Devuelves el ID al controlador para que pueda redireccionar a la sala
             return $id_partida;
             
         } catch (PDOException $e) {
@@ -51,7 +50,7 @@ class PartidaModel {
             $sql = "INSERT INTO partidas_jugadores (id_partida, id_usuario, vidas_restantes) 
                     SELECT ?, ?, vidas FROM partidas WHERE id_partida = ?";
             $stm1 = $this->pdo->prepare($sql);
-            // Pasamos el id_partida dos veces (una para el INSERT y otra para el WHERE del SELECT)
+            // Pasa el id_partida dos veces (una para el INSERT y otra para el WHERE del SELECT)
             $exito = $stm1->execute([$id_partida, $id_usuario, $id_partida]);
 
             // Suma 1 al contador de la partida
@@ -82,7 +81,7 @@ class PartidaModel {
 
     public function ObtenerJugadoresEnPartida($id_partida) {
         try {
-            // Traemos el ID, nombre y foto de los usuarios unidos a esta partida, ordenados por su ID de llegada
+            // Trae el ID, nombre y foto de los usuarios unidos a esta partida, ordenados por su ID de llegada
             $sql = "SELECT pj.id_partida_jugador, u.id_usuario, u.username, u.foto, pj.vidas_restantes 
                     FROM partidas_jugadores pj
                     JOIN usuarios u ON pj.id_usuario = u.id_usuario
@@ -162,13 +161,13 @@ class PartidaModel {
 
     public function IniciarPartida($id_partida, $silaba_inicial) {
         try {
-            // 1. Cambiamos estado, ponemos el turno al 0 (el host) y añadimos la sílaba
+            // Cambia estado, ponemos el turno al 0 (el host) y añadimos la sílaba
             $sql = "UPDATE partidas SET estado = 'iniciada', turno_actual = 0, silaba_actual = ?, contador_silaba = 1 WHERE id_partida = ?";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([$silaba_inicial, $id_partida]);
 
         } catch (Exception $e) {
-            // Si hay error, lo podemos ver en la respuesta del servidor
+            // Si hay error, se puede ver en la respuesta del servidor
             error_log($e->getMessage());
         }
     }
@@ -202,14 +201,14 @@ class PartidaModel {
 
     public function ProcesarExplosion($id_partida, $id_pj_afectado, $siguiente_turno, $nueva_silaba, $nuevo_contador) {
         try {
-            // Restamos una vida SOLO a la silla que perdió el turno
+            // Resta una vida SOLO a la silla que perdió el turno
             $sql1 = "UPDATE partidas_jugadores 
                     SET vidas_restantes = vidas_restantes - 1 
                     WHERE id_partida_jugador = ?";
             $stm1 = $this->pdo->prepare($sql1);
             $stm1->execute([$id_pj_afectado]);
 
-            // Actualizamos la partida con el nuevo turno y la nueva sílaba
+            // Actualiza la partida con el nuevo turno y la nueva sílaba
             $sql2 = "UPDATE partidas SET turno_actual = ?, silaba_actual = ?, contador_silaba = ? WHERE id_partida = ?";
             $stm2 = $this->pdo->prepare($sql2);
             $stm2->execute([$siguiente_turno, $nueva_silaba, $nuevo_contador, $id_partida]);
@@ -234,8 +233,7 @@ class PartidaModel {
 
     public function ListarPartidasAbiertas() {
         try {
-            // Traemos las partidas en espera. 
-            // También traemos el nombre del host por si quieres mostrarlo.
+            // Trae las partidas en espera.
             $sql = "SELECT p.*, u.username as nombre_host 
                     FROM partidas p
                     JOIN usuarios u ON p.id_host = u.id_usuario
@@ -245,7 +243,7 @@ class PartidaModel {
             $stm = $this->pdo->prepare($sql);
             $stm->execute();
             
-            // Devolvemos los objetos para que el foreach del HTML funcione
+            // Devuelve los objetos para que el foreach del HTML funcione
             return $stm->fetchAll(PDO::FETCH_OBJ);
         } catch (PDOException $e) {
             error_log("Error al listar partidas: " . $e->getMessage());

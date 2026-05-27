@@ -5,7 +5,7 @@ class AccesoController {
     private $modelo;
 
     public function __construct() {
-        // Inicializamos el modelo para poder usar la base de datos
+        // Inicializa el modelo para poder usar la base de datos
         $this->modelo = new AccesoModel();
     }
     
@@ -13,7 +13,7 @@ class AccesoController {
 
     // Acción para mostrar el formulario de INICIO
     public function Entrar() {
-        // SEGURIDAD: Si está logueado fuera
+        // SEGURIDAD: Si está logueado, sale
         if (isset($_SESSION['user_id'])) {
             header("Location: index.php");
             exit();
@@ -26,7 +26,7 @@ class AccesoController {
 
     // Acción para mostrar el formulario de CREAR CUENTA
     public function Registrarse() {
-        // SEGURIDAD: Si está logueado fuera
+        // SEGURIDAD: Si está logueado, sale
         if (isset($_SESSION['user_id'])) {
             header("Location: index.php");
             exit();
@@ -39,13 +39,13 @@ class AccesoController {
 
     // Acción para mostrar el formulario de EDITAR PERFIL
     public function EditarPerfil() {
-        // SEGURIDAD: Si no está logueado fuera
+        // SEGURIDAD: Si no está logueado, sale
         if (!isset($_SESSION['user_id']) || $_SESSION['user_id'] <= 16) {
             header("Location: index.php");
             exit();
         }
 
-        // RECUPERAR DATOS: Pedimos al modelo la info fresca del usuario
+        // RECUPERAR DATOS: Pide al modelo la info fresca del usuario
         $usuario = $this->modelo->ObterUsuarioPorId($_SESSION['user_id']);
 
         require_once '../view/header.php';
@@ -79,10 +79,10 @@ class AccesoController {
             if ($contrasinal === '') { $errores['contrasinal'] = "O contrasinal non pode estar baleiro."; }
 
             if (empty($errores)) {
-                /* Buscamos al usuario */
+                /* Busca al usuario */
                 $usuario = $this->modelo->LoguearUsuario($email);
 
-                /* Verificamos si existe la contraseña */
+                /* Verifica si existe la contraseña */
                 // password_verify compara la clave plana con hash da BD
                 if ($usuario && password_verify($contrasinal, $usuario->contrasena)) {
                     /* --- GUARDAR DATOS EN LA SESIÓN --- */
@@ -94,9 +94,8 @@ class AccesoController {
 
                     $mensaje_exito = "Benvido " . $usuario->username;
 
-
-                    // Aquí é onde máis adiante crearemos a SESIÓN
-
+                    // Guarda el nombre de usuario durante 30 días en todo el dominio ('/')
+                    setcookie('usuario_guardado', $usuario->username, time() + (86400 * 30), '/');
 
                 } else {
                     $errores['login'] = "O correo ou o contrasinal son incorrectos.";
@@ -176,7 +175,7 @@ class AccesoController {
             }
 
             /* --- VALIDACIÓN EN BASE DE DATOS (Duplicados) --- */
-            // Solo consultamos la BD si el formato está bien
+            // Solo consulta la BD si el formato está bien
             if (empty($errores)) {
                 $usuarioExistente = $this->modelo->ComprobarUsuarioDuplicado($username, $email);
                 
@@ -197,7 +196,7 @@ class AccesoController {
                 require_once '../view/footer.php';
             } else {
                 /* --- HASH DE LA CONTRASEÑA --- */
-                // Usamos PASSWORD_DEFAULT que aplicará BCRYPT automáticamente
+                // Usa PASSWORD_DEFAULT que aplicará BCRYPT automáticamente
                 $passwordHash = password_hash($contrasinal, PASSWORD_DEFAULT);
 
                 /* --- REGISTRO EN LA BASE DE DATOS --- */
@@ -216,20 +215,20 @@ class AccesoController {
 
     // Acción para cerrar la sesión
     public function Salir() {
-        // Cerramos todas las variables de sesión
+        // Cierra todas las variables de sesión
         $_SESSION = array();
 
-        // Destruimos la sesión
+        // Destruye la sesión
         session_destroy();
 
-        // Volvemos a la página principal y cerramos la sesión
+        // Vuelve a la página principal y cierra la sesión
         header("Location: index.php");
         exit();
     }
 
     // Acción para procesar el formulario de edición
     public function ActualizarPerfil() {
-        // SEGURIDAD: Si no está logueado fuera
+        // SEGURIDAD: Si no está logueado, sale
         if (!isset($_SESSION['user_id']) || $_SESSION['user_id'] <= 16) {
             header("Location: index.php");
             exit();
@@ -243,18 +242,18 @@ class AccesoController {
         $errores = [];
         $id = $_SESSION['user_id'];
         
-        // Recuperamos los datos actuales para tener la foto original 
+        // Recupera los datos actuales para tener la foto original 
         // y pasarlos a la vista si hay fallos
         $usuario = $this->modelo->ObterUsuarioPorId($id);
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            // Guardamos lo que el usuario ha escrito usando tus nombres del HTML
+            // Guarda lo que el usuario ha escrito usando los nombres del HTML
             $input_username = isset($_POST['nuevo_username']) ? trim($_POST['nuevo_username']) : '';
-            $foto = $usuario->foto; // Por defecto, conservamos la foto actual
+            $foto = $usuario->foto; // Por defecto, conserva la foto actual
 
-            // 1. Validar el nombre
+            // Validar el nombre
             if ($input_username === '') {
-                //Si está vacio se mantiene su nombre de usuario
+                //Si está vacío se mantiene el nombre de usuario
                 $username = $_SESSION['username'];
             } else {
 
@@ -269,7 +268,7 @@ class AccesoController {
                 } else if (stripos(trim($username), 'anónimo') === 0 || stripos(trim($username), 'anonimo') === 0) {
                     $errores['nuevo_username'] = "Non podes usar a palabra 'Anónimo' como nome.";
                 }else{
-                    // Le pasamos el nombre. Como tu método pedía también email, le pasamos un string vacío para el email
+                    // Pasa el nombre. Como el método pedía también email, pasa un string vacío para el email
                     $usuarioExistente = $this->modelo->ComprobarUsuarioDuplicado($username, '');
                             
                     if ($usuarioExistente && strtolower($usuarioExistente->username) === strtolower($username)) {
@@ -279,7 +278,7 @@ class AccesoController {
             }
 
 
-            // 2. Validar la imagen (solo si se ha subido un archivo nuevo)
+            // Validar la imagen (solo si se ha subido un archivo nuevo)
             if (isset($_FILES['nueva_foto']) && $_FILES['nueva_foto']['error'] !== UPLOAD_ERR_NO_FILE) {
                 $archivo = $_FILES['nueva_foto'];
                 $tamanoMaximo = 500 * 1024; // Límite de 500kb
@@ -292,7 +291,7 @@ class AccesoController {
                 } elseif (!in_array($archivo['type'], $formatosPermitidos)) {
                     $errores['nueva_foto'] = "Formato non válido (Só JPG, PNG, JPEG ou WEBP).";
                 } else {
-                    // Si la imagen es válida, intentamos moverla a la carpeta
+                    // Si la imagen es válida, intenta moverla a la carpeta
                     $nombreArchivo = time() . "_" . basename($archivo['name']);
 
                     $directorioDestino = __DIR__ . "/../public/img/avatars/";
@@ -302,13 +301,13 @@ class AccesoController {
                     if (move_uploaded_file($archivo['tmp_name'], $rutaDestino)) {
                         $foto = $nombreArchivo;
 
-                        //comprobamos que quiera subir una foto y que ya tenga una foto anterior
+                        //comprueba que quiera subir una foto y que ya tenga una foto anterior
                         if (!empty($usuario->foto) && $usuario->foto !== 'default.png') {
                             $rutaFotoAntigua = $directorioDestino . $usuario->foto;
                             
-                            // Verificamos que la foto antigua exista físicamente antes de intentar borrarla
+                            // Verifica que la foto antigua exista físicamente antes de intentar borrarla
                             if (file_exists($rutaFotoAntigua)) {
-                                unlink($rutaFotoAntigua); // La borramos del disco duro para no tener fotos que no se usen
+                                unlink($rutaFotoAntigua); // Borra la imagen del disco duro para no tener fotos que no se usen
                             }
                         }
                     } else {
@@ -317,7 +316,7 @@ class AccesoController {
                 }
             }
 
-            // 3. Validar Contraseñas (solo si el usuario escribió en alguno de los 3 campos)
+            // Validar Contraseñas (solo si el usuario escribió en alguno de los 3 campos)
             $input_actual = isset($_POST['contraseña_actual']) ? $_POST['contraseña_actual'] : '';
             $input_nueva = isset($_POST['nueva_contraseña']) ? $_POST['nueva_contraseña'] : '';
             $input_confirmar = isset($_POST['confirmar_contraseña']) ? $_POST['confirmar_contraseña'] : '';
@@ -338,7 +337,7 @@ class AccesoController {
                     $errores['confirmar_contraseña'] = "Debes repetir o novo contrasinal.";
                 }
 
-                // Si los 3 campos tienen texto, hacemos las validaciones
+                // Si los 3 campos tienen texto, hace las validaciones
                 if (empty($errores['contraseña_actual']) && empty($errores['nueva_contraseña']) && empty($errores['confirmar_contraseña'])) {
                     
                     // Comprobar que la contraseña actual es la correcta
@@ -363,7 +362,7 @@ class AccesoController {
                             $errores['nueva_contraseña'] = "Debe conter polo menos 1 carácter especial.";
                         }
 
-                        // D) Comprobar que la confirmación coincide
+                        // Comprobar que la confirmación coincide
                         if ($input_nueva !== $input_confirmar) {
                             $errores['confirmar_contraseña'] = "Os contrasinais non coinciden.";
                         }
@@ -371,10 +370,10 @@ class AccesoController {
                 }
             }
 
-            // 4. Si no hay errores previos, intentamos actualizar en la BD
+            // Si no hay errores previos, intenta actualizar en la BD
             if (empty($errores)) {
 
-                // Si el chivato nos dice que hay cambio de contraseña, la hasheamos. Si no, se queda en null.
+                // Si el chivato indica que hay cambio de contraseña, la hashea. Si no, se queda en null.
                 $passwordHash = null;
                 if ($cambiandoContraseña) {
                     $passwordHash = password_hash($input_nueva, PASSWORD_DEFAULT);
@@ -398,14 +397,14 @@ class AccesoController {
                         $mensaje_exito = "Contrasinal modificado con éxito.";
                     }
 
-                    // Actualizamos la sesión con los datos nuevos
+                    // Actualiza la sesión con los datos nuevos
                     $_SESSION['username'] = $username;
                     $_SESSION['foto'] = $foto;
                     
-                    // Actualizamos la variable $usuario para que el HTML muestre los cambios al instante
+                    // Actualiza la variable $usuario para que el HTML muestre los cambios al instante
                     $usuario->username = $username;
                     $usuario->foto = $foto;
-                    // Actualizamos también la contraseña en la variable temporal para que las futuras comprobaciones de la misma sesión no fallen
+                    // Actualiza también la contraseña en la variable temporal para que las futuras comprobaciones de la misma sesión no fallen
                     if ($cambiandoContraseña) {
                         $usuario->contrasena = $passwordHash;
                     }
@@ -416,10 +415,9 @@ class AccesoController {
                 }
             }
 
-            // 4. Si llegamos aquí es porque hay errores (de validación o de BD)
+            // Si llega aquí es porque hay errores (de validación o de BD)
             if (!empty($errores)) {
-                // Sobrescribimos el nombre temporalmente para que el formulario 
-                // no le borre al usuario lo que intentó escribir
+                // Sobrescribe el nombre temporalmente para que el formulario no le borre el nombre al usuario lo que intentó escribir
                 $usuario->username = $username;
             }
                 require_once '../view/header.php';
