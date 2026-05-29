@@ -231,14 +231,23 @@ class PartidaModel {
         }
     }
 
-    public function ListarPartidasAbiertas() {
+    public function ListarPartidasAbiertas($esAdmin = false) {
         try {
-            // Trae las partidas en espera.
-            $sql = "SELECT p.*, u.username as nombre_host 
-                    FROM partidas p
-                    JOIN usuarios u ON p.id_host = u.id_usuario
-                    WHERE p.estado = 'esperando'
-                    ORDER BY p.fecha_partida DESC";
+            if ($esAdmin) {
+                // Trae las partidas en espera o iniciadas
+                $sql = "SELECT p.*, u.username as nombre_host 
+                        FROM partidas p
+                        JOIN usuarios u ON p.id_host = u.id_usuario
+                        WHERE p.estado IN ('esperando', 'iniciada')
+                        ORDER BY p.fecha_partida DESC";
+            } else {
+                // Trae solo las partidas en espera (para usuarios normales)
+                $sql = "SELECT p.*, u.username as nombre_host 
+                        FROM partidas p
+                        JOIN usuarios u ON p.id_host = u.id_usuario
+                        WHERE p.estado = 'esperando'
+                        ORDER BY p.fecha_partida DESC";
+            }
             
             $stm = $this->pdo->prepare($sql);
             $stm->execute();

@@ -57,16 +57,17 @@
                         </div>
 
                         <div class="col-accion">
-                            <?php if ($p->visibilidad === 'privada' && !$llena){ ?>
-                                <a style="cursor: pointer;" class="<?= $claseBoton ?>" onclick="abrirModalContrasinal(<?= $p->id_partida ?>)">
-                                    <?= $textoBoton ?>
-                                </a>
-                            <?php }else{ ?>
-                                <a href="?c=partida&a=Acceder&id=<?= $p->id_partida ?>" class="<?= $claseBoton ?>">
-                                    <?= $textoBoton ?>
-                                </a>
+                            <?php if ($p->estado !== 'iniciada') { ?>
+                                <?php if ($p->visibilidad === 'privada' && !$llena){ ?>
+                                    <a style="cursor: pointer;" class="<?= $claseBoton ?>" onclick="abrirModalContrasinal(<?= $p->id_partida ?>)">
+                                        <?= $textoBoton ?>
+                                    </a>
+                                <?php }else{ ?>
+                                    <a href="?c=partida&a=Acceder&id=<?= $p->id_partida ?>" class="<?= $claseBoton ?>">
+                                        <?= $textoBoton ?>
+                                    </a>
+                                <?php } ?>
                             <?php } ?>
-
                             <?php if (isset($_SESSION['id_rol']) && $_SESSION['id_rol'] == 1){ ?>
                                 <a href="?c=partida&a=Espectar&id=<?= $p->id_partida ?>" class="btn-espectar-accion">
                                     VER

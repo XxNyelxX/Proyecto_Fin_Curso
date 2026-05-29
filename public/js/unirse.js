@@ -52,18 +52,20 @@ function actualizarLista() {
 
                     // Desplegable de contraseña en buscar partida (si es privada y no está llena, abre modal)
                     let botonPrincipal = '';
-                    if (p.visibilidad === 'privada' && !llena) {
-                        botonPrincipal = `
-                            <a style="cursor: pointer;" class="${claseBoton}" onclick="abrirModalContrasinal(${p.id_partida})">
-                                ${textoBoton}
-                            </a>
-                        `;
-                    } else {
-                        botonPrincipal = `
-                            <a href="?c=partida&a=Acceder&id=${p.id_partida}" class="${claseBoton}">
-                                ${textoBoton}
-                            </a>
-                        `;
+                    if (p.estado !== 'iniciada') {
+                        if (p.visibilidad === 'privada' && !llena) {
+                            botonPrincipal = `
+                                <a style="cursor: pointer;" class="${claseBoton}" onclick="abrirModalContrasinal(${p.id_partida})">
+                                    ${textoBoton}
+                                </a>
+                            `;
+                        } else {
+                            botonPrincipal = `
+                                <a href="?c=partida&a=Acceder&id=${p.id_partida}" class="${claseBoton}">
+                                    ${textoBoton}
+                                </a>
+                            `;
+                        }
                     }
 
                     contenedor.innerHTML += `

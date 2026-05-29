@@ -625,8 +625,9 @@ class PartidaController {
     }
 
     public function Unirse() {
-        // Pide al modelo todas las partidas con estado 'esperando'
-        $partidas = $this->modelo->ListarPartidasAbiertas();
+        $esAdmin = (isset($_SESSION['id_rol']) && $_SESSION['id_rol'] == 1);
+        // Pide al modelo todas las partidas con estado 'esperando' (e 'iniciada' si es admin)
+        $partidas = $this->modelo->ListarPartidasAbiertas($esAdmin);
 
         require_once '../view/header.php';
         require_once '../view/partida/unirse.php';
@@ -636,12 +637,12 @@ class PartidaController {
     public function ListaPartidasJSON() {
         // Obliga a devolver JSON
         header('Content-Type: application/json');
-        
-        // Pide las partidas actualizadas al modelo
-        $partidas = $this->modelo->ListarPartidasAbiertas();
-        
+
         // Comprueba si el usuario es admin para saber qué botones dibujar luego en JS
         $esAdmin = (isset($_SESSION['id_rol']) && $_SESSION['id_rol'] == 1);
+        
+        // Pide las partidas actualizadas al modelo
+        $partidas = $this->modelo->ListarPartidasAbiertas($esAdmin);
         
         echo json_encode([
             'status' => 'ok',
