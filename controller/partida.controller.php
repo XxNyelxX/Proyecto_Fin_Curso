@@ -412,11 +412,11 @@ class PartidaController {
     private function GenerarSilabaAleatoria() {
         $silabas = [
             // Básicas
-            "MA", "PA", "TA", "CA", "LA", "SA", "DA", "BA", "VA", "RA", "NA", "FA", "JA", "GA", "CHA", "LLA", "NHA", "ZA", "XA",
-            "ME", "PE", "TE", "CE", "LE", "SE", "DE", "BE", "VE", "RE", "NE", "FE", "JE", "GE", "CHE", "LLE", "NHE", "ZE", "XE",
-            "MI", "PI", "TI", "CI", "LI", "SI", "DI", "BI", "VI", "RI", "NI", "FI", "JI", "GI", "CHI", "LLI", "NHI", "ZI", "XI",
-            "MO", "PO", "TO", "CO", "LO", "SO", "DO", "BO", "VO", "RO", "NO", "FO", "JO", "GO", "CHO", "LLO", "NHO", "ZO", "XO",
-            "MU", "PU", "TU", "CU", "LU", "SU", "DU", "BU", "VU", "RU", "NU", "FU", "JU", "GU", "CHU", "LLU", "NHU", "ZU", "XU",
+            "MA", "PA", "TA", "CA", "LA", "SA", "DA", "BA", "VA", "RA", "NA", "FA", "GA", "CHA", "LLA", "NHA", "ZA", "XA",
+            "ME", "PE", "TE", "CE", "LE", "SE", "DE", "BE", "VE", "RE", "NE", "FE", "CHE", "LLE", "XE",
+            "MI", "PI", "TI", "CI", "LI", "SI", "DI", "BI", "VI", "RI", "NI", "FI", "CHI", "LLI", "XI",
+            "MO", "PO", "TO", "CO", "LO", "SO", "DO", "BO", "VO", "RO", "NO", "FO", "GO", "CHO", "LLO", "ZO", "XO",
+            "MU", "PU", "TU", "CU", "LU", "SU", "DU", "BU", "VU", "RU", "NU", "FU", "GU", "CHU", "LLU", "ZU", "XU",
             
             // Inversas
             "AL", "EL", "IL", "OL", "UL", "AR", "ER", "IR", "OR", "UR", "AS", "ES", "IS", "OS", "US", 
@@ -444,7 +444,7 @@ class PartidaController {
             "PAN", "PEN", "PIN", "PON", "PUN", "PAL", "PEL", "PIL", "POL", "PUL",
             "RAN", "REN", "RIN", "RON", "RUN", "RAL", "REL", "RIL", "ROL", "RUL",
             "TAN", "TEN", "TIN", "TON", "TUN", "TAL", "TEL", "TIL", "TOL", "TUL",
-            "VAN", "VEN", "VIN", "VON", "VUN", "VAL", "VEL", "VIL", "VOL", "VUL",
+            "VAN", "VEN", "VIN", "VON", "VAL", "VEL", "VIL", "VOL", "VUL",
             "FAN", "FEN", "FIN", "FON", "FUN", "FAL", "FEL", "FIL", "FOL", "FUL"
         ];
         return $silabas[array_rand($silabas)];
