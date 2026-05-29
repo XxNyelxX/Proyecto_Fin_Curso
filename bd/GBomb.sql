@@ -71,13 +71,6 @@ CREATE TABLE partidas_jugadas (
     FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- Tabla DICCIONARIO_LOCAL
-CREATE TABLE diccionario_local (
-    id_palabra INT AUTO_INCREMENT PRIMARY KEY,
-    palabra VARCHAR(100) NOT NULL UNIQUE,
-    fecha_anadida TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
 -- Roles
 INSERT INTO roles (id_rol, nombre_rol) VALUES 
 (1, 'administrador'),
