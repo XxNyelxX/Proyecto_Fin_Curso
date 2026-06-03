@@ -2,7 +2,7 @@
 
 <div class="contenedor-crear-partida">
     
-    <h2 class="titulo-animado-pixel" style="font-size: 4rem; margin-bottom: 40px; letter-spacing: 5px;">CREAR PARTIDA</h2>
+    <h2 class="titulo-animado-pixel" style="font-size: clamp(2.5rem, 5vh, 4rem); margin-bottom: max(10px, 3vh); letter-spacing: 5px;">CREAR PARTIDA</h2>
     
     <form action="?c=partida&a=GuardarPartida" method="POST" class="form-crear-partida">
         

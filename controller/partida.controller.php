@@ -424,7 +424,7 @@ class PartidaController {
             
             // Pares de consonantes
             "CH", "LL", "NH", "RR", "PR", "TR", "CR", "BR", "GR", "FR", "BL", "CL", "FL", "GL", "PL", 
-            "MB", "MP", "ND", "NT", "NC", "NG", "ST", "SP", "SC", "RS", "RT", "RC", "RD", "RN", "RM",
+            "MB", "MP", "ND", "NT", "NC", "NG", "ST", "SP", "SC", "RS", "RT", "RC", "RD", "RN",
             
             // Trabadas
             "TRA", "TRE", "TRI", "TRO", "TRU", "BRA", "BRE", "BRI", "BRO", "BRU", "CRA", "CRE", "CRI", "CRO", "CRU", 

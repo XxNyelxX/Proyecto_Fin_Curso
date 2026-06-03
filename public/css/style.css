@@ -25,7 +25,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
 }
 
 /* - Modo estático (accesibilidad) - */
@@ -154,6 +154,9 @@ a, a:visited, a:active {
     width: 100%;
     box-sizing: border-box;
     position: relative;
+
+    padding-top: 80px;    /* Deja espacio libre para el botón VOLVER */
+    padding-bottom: 40px; /* Deja espacio con el borde inferior */
 }
 
 /* -- Formulario Crear Partida -- */
@@ -163,7 +166,7 @@ a, a:visited, a:active {
     margin: 0 auto; /* centrado */
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    gap: max(10px, 2.5vh);
 }
 
 
@@ -186,9 +189,10 @@ a, a:visited, a:active {
 /* -- El Tablero Circular (Más amplio para texto de juego) -- */
 .mesa-juego {
     position: relative;
-    width: 800px;
-    height: 800px;
-    margin: 0 auto;
+    width: 75vmin;  /* Ocupará como mucho el 75% de la pantalla */
+    height: 75vmin;
+    max-width: 800px; /* Pero nunca se hará más grande de 800px */
+    max-height: 800px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -227,24 +231,133 @@ a, a:visited, a:active {
     z-index: 1;
 }
 
-/* -- Coordenadas perfectas (Radio 380px) -- */
-/* Se usa calc(-50% + Xpx) para que el centro exacto de la foto caiga en el punto geométrico */
-.slot-0  { transform: translate(calc(-50% + 0px), calc(-50% - 380px)); } 
-.slot-1  { transform: translate(calc(-50% + 145px), calc(-50% - 351px)); }
-.slot-2  { transform: translate(calc(-50% + 269px), calc(-50% - 269px)); }
-.slot-3  { transform: translate(calc(-50% + 351px), calc(-50% - 145px)); }
-.slot-4  { transform: translate(calc(-50% + 380px), calc(-50% + 0px)); } 
-.slot-5  { transform: translate(calc(-50% + 351px), calc(-50% + 145px)); }
-.slot-6  { transform: translate(calc(-50% + 269px), calc(-50% + 269px)); }
-.slot-7  { transform: translate(calc(-50% + 145px), calc(-50% + 351px)); }
-.slot-8  { transform: translate(calc(-50% + 0px), calc(-50% + 380px)); }
-.slot-9  { transform: translate(calc(-50% - 145px), calc(-50% + 351px)); }
-.slot-10 { transform: translate(calc(-50% - 269px), calc(-50% + 269px)); }
-.slot-11 { transform: translate(calc(-50% - 351px), calc(-50% + 145px)); }
-.slot-12 { transform: translate(calc(-50% - 380px), calc(-50% + 0px)); }
-.slot-13 { transform: translate(calc(-50% - 351px), calc(-50% - 145px)); }
-.slot-14 { transform: translate(calc(-50% - 269px), calc(-50% - 269px)); }
-.slot-15 { transform: translate(calc(-50% - 145px), calc(-50% - 351px)); }
+/* -- Coordenadas fluidas (Radio al 95% del contenedor) -- */
+.slot-0  { left: 50%; top: 2.5%; } 
+.slot-1  { left: 68.125%; top: 6.125%; }
+.slot-2  { left: 83.625%; top: 16.375%; }
+.slot-3  { left: 93.875%; top: 31.875%; }
+.slot-4  { left: 97.5%; top: 50%; } 
+.slot-5  { left: 93.875%; top: 68.125%; }
+.slot-6  { left: 83.625%; top: 83.625%; }
+.slot-7  { left: 68.125%; top: 93.875%; }
+.slot-8  { left: 50%; top: 97.5%; }
+.slot-9  { left: 31.875%; top: 93.875%; }
+.slot-10 { left: 16.375%; top: 83.625%; }
+.slot-11 { left: 6.125%; top: 68.125%; }
+.slot-12 { left: 2.5%; top: 50%; }
+.slot-13 { left: 6.125%; top: 31.875%; }
+.slot-14 { left: 16.375%; top: 16.375%; }
+.slot-15 { left: 31.875%; top: 6.125%; }
+
+/* --- LÍMITES PARA TEXTOS LARGOS (Corte con 3 puntitos) --- */
+/* Para los nombres de los jugadores en la mesa */
+.nombre-jugador {
+    white-space: nowrap !important;       /* Prohibido saltar de línea aunque haya espacios */
+    overflow: hidden !important;          /* Esconde todo lo que se salga de la caja */
+    text-overflow: ellipsis !important;   /* Añade (...) si se corta */
+    max-width: 110px !important;
+    display: inline-block !important;     /* Necesario para que funcione el max-width */
+}
+/* 2. Para los nombres de la sala en la pantalla UNIRSE */
+.tarjeta-partida .col-nombre {
+    min-width: 0; /* Vital para que Flexbox no se expanda al infinito */
+}
+.nombre-sala {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100% !important; /* Se limita al ancho de su columna */
+    display: block !important;
+}
+
+/* --- ADAPTACIÓN RESPONSIVE DE LA SALA DE JUEGO --- */
+/* 1. Para portátiles y monitores medianos */
+@media (max-height: 850px), (max-width: 900px) {
+    
+    .contenedor-sala-espera {
+        justify-content: center !important;
+        padding: 0 !important;
+    }
+    /* Recuperamos un círculo grande y lo empujamos hacia el techo libre */
+    .mesa-juego {
+        width: 75vmin !important;
+        height: 75vmin !important;
+        margin-bottom: 120px !important; 
+    }
+    
+    /* Agrandamos de nuevo las fotos (un 50% más grandes que el último intento) */
+    .avatar-wrapper {
+        width: 45px !important; 
+        height: 45px !important;
+        border-width: 2px !important;
+    }
+    
+    .avatar-wrapper img {
+        width: 100% !important;
+        height: 100% !important;
+    }
+    
+    /* Textos más grandes y legibles, con su límite de corte automático ajustado */
+    .nombre-jugador {
+        font-size: 0.9rem !important; 
+        margin-bottom: 0px !important; 
+        padding: 1px 4px !important;
+        line-height: 1 !important; 
+        max-width: 95px !important; 
+    }
+    
+    .vidas-jugador {
+        font-size: 0.95rem !important;
+        margin-bottom: 0px !important; 
+        line-height: 1 !important;
+    }
+    /* Centro más vistoso */
+    .bomba-central img {
+        width: 65px !important;
+        height: 65px !important;
+    }
+    
+    .contador-jugadores {
+        font-size: 1.5rem !important;
+    }
+    
+    .palabra-escrita {
+        font-size: 13px !important; 
+        margin-top: 2px !important; 
+    }
+}
+/* 2. Para móviles o pantallas excesivamente pequeñas */
+@media (max-height: 650px), (max-width: 650px) {
+    
+    .mesa-juego {
+        width: 70vmin !important;
+        height: 70vmin !important;
+        margin-bottom: 100px !important;
+    }
+    
+    .avatar-wrapper {
+        width: 35px !important; 
+        height: 35px !important;
+    }
+    
+    .nombre-jugador {
+        font-size: 0.8rem !important; 
+        max-width: 80px !important; 
+    }
+    
+    .vidas-jugador {
+        font-size: 0.85rem !important;
+    }
+    .bomba-central img {
+        width: 55px !important;
+        height: 55px !important;
+    }
+    
+    .contador-jugadores {
+        font-size: 1.2rem !important;
+    }
+}
+
 
 /* -- Elementos del Jugador -- */
 .vidas-jugador {
@@ -1669,3 +1782,45 @@ body.modo-estatico .modal-pixel-content {
     padding: 10px 0;
     font-size: 1.5rem;
 }
+
+
+/* --- ADAPTACIÓN RESPONSIVE DEL FORMULARIO DE CREAR PARTIDA --- */
+/* Si la altura de la pantalla es de 800px o menos (ej: portátiles) */
+@media (max-height: 800px) {
+    
+    /* Encoje los botones de VISIBILIDAD y VIDAS */
+    .btn-selector {
+        padding: 8px 0; /* Originalmente era 15px */
+        font-size: 1.4rem;
+        width: 110px; /* Originalmente era 140px */
+    }
+    
+    /* Hace el campo de texto "NOME DA SALA" más fino */
+    .input-sala {
+        padding: 5px 10px;
+        font-size: 1.3rem;
+    }
+    /* Reduce el tamaño de los pequeños textos de cada bloque */
+    .label-config, .slider-valor {
+        font-size: 1.2rem;
+        margin-bottom: 5px;
+    }
+    /* El botón gigante de "ARRINCAR PARTIDA" se hace menos gigante */
+    .btn-gigante {
+        padding: 10px 20px;
+        font-size: 1.8rem; /* Originalmente era 2.2rem */
+    }
+}
+/* Si la pantalla es MUY bajita (menos de 650px) lo comprimimos al máximo */
+@media (max-height: 650px) {
+    .btn-selector {
+        padding: 5px 0;
+        font-size: 1.2rem;
+        width: 90px;
+    }
+    .btn-gigante {
+        font-size: 1.5rem;
+        padding: 8px 15px;
+    }
+}
+
